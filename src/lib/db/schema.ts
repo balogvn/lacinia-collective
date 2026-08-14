@@ -161,7 +161,17 @@ export interface TrustVoucher {
   status: VoucherStatus
   /** When this device first stored it. Distinct from issuedAt (which the issuer controls). */
   receivedAt: number
-  /** Direction, for cheap UI filtering: did we issue this or receive it? */
+  /**
+   * DO NOT READ THIS TO DECIDE WHOSE VOUCH IT IS. Derive direction from
+   * `subjectPub`/`issuerPub` against the reading device's own key instead.
+   *
+   * "Inbound" is a statement about ONE device's relationship to a voucher, but
+   * the field travels inside the synced record. After a sync every relayed
+   * voucher arrives stamped with whatever the author wrote, so a device that
+   * pulled a commons would count strangers' vouchers as its own and report
+   * standing it never earned. Retained only because it is inside signed bytes
+   * on already-published records.
+   */
   direction: 'INBOUND' | 'OUTBOUND'
   hlc: HLC
   deleted?: boolean

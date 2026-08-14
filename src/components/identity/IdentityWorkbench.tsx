@@ -86,7 +86,12 @@ export function IdentityWorkbench() {
     )
   }
 
-  const inbound = commons.vouchers.filter((v) => v.direction === 'INBOUND')
+  // Derived from the keys, NOT the synced `direction` field — that field
+  // describes the authoring device's relationship and arrives stamped on every
+  // relayed voucher, so trusting it would count strangers' vouches as ours.
+  const inbound = commons.vouchers.filter(
+    (v) => v.subjectPub === commons.identity!.pubKey && !v.deleted,
+  )
 
   return (
     <div className="space-y-8">
@@ -122,7 +127,7 @@ export function IdentityWorkbench() {
       <section id="docs" className="border border-paper/30 p-5 sm:p-7">
         <p className="eyebrow">What this build does and does not do</p>
         <h2 className="mt-3 font-display text-3xl uppercase text-paper sm:text-4xl">
-          Task 1 — foundation
+          Honest limits
         </h2>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-2">
@@ -132,19 +137,20 @@ export function IdentityWorkbench() {
               <li>— Ed25519 identity generated and held on this device</li>
               <li>— Twelve-word recovery, no account and no password</li>
               <li>— Two-scan offline vouching with proof-of-possession</li>
-              <li>— Replay-bound vouchers, re-verified on every load</li>
               <li>— Sybil-resistant trust scoring, computed locally</li>
-              <li>— IndexedDB schema with an append-only CRDT oplog</li>
+              <li>— Sync as static bundles, or phone-to-phone by animated QR</li>
+              <li>— Time-banked listings settled in mutual credit</li>
+              <li>— Deliberation that surfaces what bridges groups</li>
+              <li>— Flags requiring agreement across groups, and revocation</li>
             </ul>
           </div>
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-paper">Not yet built</p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-paper">Not built</p>
             <ul className="mt-3 space-y-2 font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper/45">
-              <li>— Sync bundles pushed and pulled as static JSON</li>
-              <li>— Time-banked listings surfaced in a marketplace</li>
-              <li>— Augmented deliberation and bridging-statement clustering</li>
-              <li>— Revocation, and the governance around anchors</li>
-              <li>— Optional PIN lock is implemented but not yet wired to the UI</li>
+              <li>— English only. Nothing translates, so a statement in Hausa stays invisible to a Yorùbá speaker here</li>
+              <li>— Anchor governance: each device decides its own anchors alone</li>
+              <li>— The PIN lock exists in code but is not wired to this screen</li>
+              <li>— No appeals process. There is no server to arbitrate one</li>
             </ul>
           </div>
         </div>

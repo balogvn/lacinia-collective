@@ -192,7 +192,9 @@ export function useCommons() {
       const hlc = await stamp()
       const result = await saveVoucher({ ...voucher, hlc })
       if (peerName) {
-        const peerKey = voucher.direction === 'INBOUND' ? voucher.issuerPub : voucher.subjectPub
+        // Whichever end is not us. Derived, for the reason in schema.ts.
+        const self = state.identity?.pubKey
+        const peerKey = voucher.subjectPub === self ? voucher.issuerPub : voucher.subjectPub
         await upsertPeer(peerKey, peerName)
       }
       await refresh()

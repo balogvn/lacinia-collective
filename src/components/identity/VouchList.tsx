@@ -37,7 +37,7 @@ function shortDate(ms: number): string {
 export function VouchList({ vouchers, peers, selfPub, onRevoke }: Props) {
   const [revoking, setRevoking] = useState<TrustVoucher | null>(null)
 
-  if (vouchers.length === 0) {
+  if (vouchers.filter((v) => v.issuerPub === selfPub || v.subjectPub === selfPub).length === 0) {
     return (
       <section className="border border-paper/30 p-5">
         <p className="eyebrow">Vouches</p>
@@ -54,15 +54,20 @@ export function VouchList({ vouchers, peers, selfPub, onRevoke }: Props) {
   const nameFor = (pubKey: string): string | null =>
     peers.find((p) => p.pubKey === pubKey)?.displayName ?? null
 
-  const sorted = [...vouchers].sort((a, b) => b.receivedAt - a.receivedAt)
+  // Only vouches this device is actually party to. After a sync the table holds
+  // every relayed voucher in the commons, and listing strangers' vouches under
+  // "your vouches" is simply false. Membership is derived from the keys, never
+  // from the synced `direction` field — see the note in schema.ts.
+  const mine = vouchers.filter((v) => v.issuerPub === selfPub || v.subjectPub === selfPub)
+  const sorted = [...mine].sort((a, b) => b.receivedAt - a.receivedAt)
 
   return (
     <section className="border border-paper/30">
       <div className="flex items-baseline justify-between border-b border-paper/25 p-5">
         <p className="eyebrow">Vouches</p>
         <p className="font-mono text-[10px] uppercase tracking-wider text-paper/40">
-          {vouchers.filter((v) => v.status === VoucherStatus.Valid).length} valid ·{' '}
-          {vouchers.length} total
+          {mine.filter((v) => v.status === VoucherStatus.Valid).length} valid ·{' '}
+          {mine.length} total
         </p>
       </div>
 
@@ -82,12 +87,13 @@ export function VouchList({ vouchers, peers, selfPub, onRevoke }: Props) {
           </thead>
           <tbody>
             {sorted.map((v) => {
-              const counterparty = v.direction === 'INBOUND' ? v.issuerPub : v.subjectPub
+              const received = v.subjectPub === selfPub
+              const counterparty = received ? v.issuerPub : v.subjectPub
               const name = nameFor(counterparty)
               return (
                 <tr key={v.id} className="border-b border-paper/10 last:border-b-0">
                   <td className="px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-paper-dim">
-                    {v.direction === 'INBOUND' ? '← received' : '→ given'}
+                    {received ? '← received' : '→ given'}
                   </td>
                   <td className="px-5 py-3">
                     {name ? (
@@ -122,9 +128,7 @@ export function VouchList({ vouchers, peers, selfPub, onRevoke }: Props) {
                       vouch, the trust graph would be erasable by a single bad
                       actor — cheaper than forging trust, and more damaging.
                     */}
-                    {v.direction === 'OUTBOUND' &&
-                    v.issuerPub === selfPub &&
-                    v.status === VoucherStatus.Valid ? (
+                    {!received && v.issuerPub === selfPub && v.status === VoucherStatus.Valid ? (
                       <button
                         onClick={() => setRevoking(v)}
                         className="mt-1 block font-mono text-[10px] uppercase tracking-wider text-paper/40 hover:text-alarm"
