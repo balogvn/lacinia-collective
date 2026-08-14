@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import { TRUST_TIER_LABELS, TrustTier, type UserIdentity } from '@/lib/db/schema'
 import { explainTrust, type TrustNode } from '@/lib/vouch/trust'
 
@@ -19,6 +21,17 @@ const TIER_ORDER: TrustTier[] = [
 export function IdentityCard({ identity, trust, voucherCount }: Props) {
   const tier = trust?.tier ?? TrustTier.Observer
   const score = trust?.score ?? 0
+  const [copied, setCopied] = useState(false)
+
+  const copyKey = async () => {
+    try {
+      await navigator.clipboard.writeText(identity.pubKey)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard blocked — the key is selectable below regardless */
+    }
+  }
 
   return (
     <section className="border border-paper/30">
@@ -43,6 +56,24 @@ export function IdentityCard({ identity, trust, voucherCount }: Props) {
             there is nothing to mishear across a noisy market.
           */}
           <p className="mt-2 font-mono text-lg tracking-wider text-paper">{identity.fingerprint}</p>
+
+          {/*
+            The fingerprint is for humans; the full key is what other people
+            actually have to paste — to settle an exchange with you, or to trust
+            you as an anchor. Without a way to copy it, every one of those flows
+            dead-ends at "find your own public key", which previously meant
+            opening devtools.
+          */}
+          <button
+            onClick={copyKey}
+            title={identity.pubKey}
+            className="mt-2 font-mono text-[10px] uppercase tracking-wider text-paper/40 transition-colors hover:text-paper"
+          >
+            {copied ? 'Copied' : 'Copy public key'}
+          </button>
+          <p className="mt-1 max-w-[13rem] break-all text-right font-mono text-[9px] leading-relaxed text-paper/25 sm:max-w-[16rem]">
+            {identity.pubKey}
+          </p>
         </div>
       </div>
 
