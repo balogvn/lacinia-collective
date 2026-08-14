@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { FrameBroadcaster } from './FrameBroadcaster'
 import { FrameReceiver } from './FrameReceiver'
@@ -53,6 +53,9 @@ function formatWhen(ms: number | null): string {
 
 export function SyncPanel({ keyPair, onMerged }: Props) {
   const [tab, setTab] = useState<Tab>('pull')
+  // Only steer the opening tab once. After that the tab is the user's to
+  // choose, and re-steering on every refresh would yank it away mid-task.
+  const steered = useRef(false)
   const [sources, setSources] = useState<SyncSourceRecord[]>([])
   const [pending, setPending] = useState(0)
   const [lastPulled, setLastPulled] = useState<number | null>(null)
@@ -79,6 +82,15 @@ export function SyncPanel({ keyPair, onMerged }: Props) {
   useEffect(() => {
     void refresh()
   }, [refresh])
+
+  // A fresh device has no sources, so Pull — the default — is the one tab where
+  // nothing can be done, and its main button is greyed out on arrival. Open on
+  // Sources instead, which is where the first action actually is.
+  useEffect(() => {
+    if (steered.current) return
+    if (sources.length === 0) setTab('sources')
+    steered.current = true
+  }, [sources.length])
 
   /* ── pull ───────────────────────────────────────────────────────── */
   const doPull = async () => {
@@ -249,18 +261,26 @@ export function SyncPanel({ keyPair, onMerged }: Props) {
                 Only what changed since last time is downloaded. If nothing has changed, the whole
                 check costs a few hundred bytes.
               </p>
-              <button
-                onClick={doPull}
-                disabled={busy || sources.filter((s) => s.enabled).length === 0}
-                className="btn btn-solid mt-6"
-              >
-                {busy ? 'Syncing…' : 'Sync now'}
-              </button>
-              {sources.length === 0 ? (
-                <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-paper/45">
-                  Add a source first — see the Sources tab.
-                </p>
-              ) : null}
+              {/*
+                With no sources there is nothing to sync, but a greyed-out
+                button is a dead end — it states a problem and offers no way
+                out. Send them where the fix is instead.
+              */}
+              {sources.filter((s) => s.enabled).length === 0 ? (
+                <>
+                  <button onClick={() => setTab('sources')} className="btn btn-solid mt-6">
+                    Add a source first <span aria-hidden>→</span>
+                  </button>
+                  <p className="mt-3 max-w-lg font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/45">
+                    Nothing to pull from yet. A source is any web address serving a commons — you
+                    can also receive updates straight from another phone under Receive.
+                  </p>
+                </>
+              ) : (
+                <button onClick={doPull} disabled={busy} className="btn btn-solid mt-6">
+                  {busy ? 'Syncing…' : 'Sync now'}
+                </button>
+              )}
             </div>
 
             {report ? (
