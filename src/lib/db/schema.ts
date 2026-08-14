@@ -500,6 +500,56 @@ export interface VoucherRevocation {
   hlc: HLC
 }
 
+/* ─────────────────────── Anchor governance ─────────────────────── */
+
+export enum AnchorActionKind {
+  /** "I recognise this other key as an anchor too." Discovery, not authority. */
+  Endorse = 'ENDORSE',
+  /** "My key is changing to this one." Signed by the OLD key. */
+  Rotate = 'ROTATE',
+  /** "I am standing down as an anchor." */
+  Retire = 'RETIRE',
+}
+
+export const ANCHOR_ACTION_LABELS: Record<AnchorActionKind, string> = {
+  [AnchorActionKind.Endorse]: 'Recognises another anchor',
+  [AnchorActionKind.Rotate]: 'Changing key',
+  [AnchorActionKind.Retire]: 'Standing down',
+}
+
+/**
+ * A signed statement by an anchor about the anchor set.
+ *
+ * NONE OF THESE APPLY AUTOMATICALLY, and that is the design rather than an
+ * unfinished edge. Anchors are the axioms of the trust graph, so a network
+ * process that edited them would be using derived trust to choose the thing
+ * trust derives from — circular, and capturable.
+ *
+ * Auto-applying RETIRE is the tempting exception, since removing an axiom
+ * shrinks trust rather than inflating it. It is still refused: a stolen anchor
+ * key could then sign one retirement and collapse the standing of everyone that
+ * anchor ever vouched for. One signature, whole community.
+ *
+ * So each action is evidence surfaced for a decision the device owner makes.
+ * Self-signed and therefore relayable — a rotation is useless if it only
+ * reaches devices the anchor personally synced with.
+ */
+export interface AnchorAction {
+  /** PRIMARY KEY — hash of the signed document. */
+  id: string
+  kind: AnchorActionKind
+  /** The anchor acting. Must be the signer. */
+  anchorPub: PubKeyId
+  /** Endorse: the key recognised. Rotate: the replacement key. Retire: absent. */
+  targetPub?: PubKeyId
+  /** Short human context, e.g. "Ikorodu Market Association, 2026 committee". */
+  note: string
+  actedAt: number
+  signature: string
+  signedBytes: string
+  hlc: HLC
+}
+
 export type OpEntity =
   | 'identity'
   | 'voucher'
@@ -510,6 +560,7 @@ export type OpEntity =
   | 'vote'
   | 'flag'
   | 'revocation'
+  | 'anchorAction'
 
 /**
  * Append-only operation log. This — not the materialised tables — is what

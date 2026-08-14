@@ -30,6 +30,7 @@ import type {
   Vote,
   Flag,
   VoucherRevocation,
+  AnchorAction,
 } from './schema'
 import { log } from '../telemetry'
 
@@ -43,6 +44,7 @@ export class LaciniaDB extends Dexie {
   votes!: Table<Vote, string>
   flags!: Table<Flag, string>
   revocations!: Table<VoucherRevocation, string>
+  anchorActions!: Table<AnchorAction, string>
   oplog!: Table<OpLogEntry, string>
   vault!: Table<VaultRecord, string>
   meta!: Table<MetaRecord, string>
@@ -123,6 +125,12 @@ export class LaciniaDB extends Dexie {
       flags:
         'id, targetId, targetEntity, authorPub, conversationId, [targetId+authorPub], hlc, deleted',
       revocations: 'id, voucherId, issuerPub, subjectPub, revokedAt, hlc',
+    })
+
+    // v6 — anchor governance. Signed statements by anchors about the anchor
+    // set. Nothing here applies automatically; see anchor/governance.ts.
+    this.version(6).stores({
+      anchorActions: 'id, kind, anchorPub, targetPub, actedAt, hlc',
     })
 
     this.on('populate', () => log.info('db', 'database created at version 1'))

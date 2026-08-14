@@ -27,7 +27,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 285 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 314 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -111,6 +111,7 @@ More flags survives; fewer flags corroborated across the divide does not.
 | Cross-group moderation policy | [`src/lib/moderate/policy.ts`](src/lib/moderate/policy.ts) |
 | Signed flags and vouch revocation | [`src/lib/moderate/`](src/lib/moderate) |
 | Relayable self-signed records | [`src/lib/crypto/attest.ts`](src/lib/crypto/attest.ts) |
+| Anchor endorsement, rotation, retirement | [`src/lib/anchor/governance.ts`](src/lib/anchor/governance.ts) |
 
 ---
 
@@ -680,6 +681,16 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - only the issuer may revoke; a forged or re-attributed revocation cannot strip standing
 - relays may carry flags and revocations, but manufactured ones are caught
 
+### `verify:anchors` — 29 checks
+
+- an untrusted key endorsing anyone is ignored; two untrusted keys endorsing each other bootstrap
+  nothing, so no cartel can form from outside the set
+- a stolen anchor key signing a retirement surfaces it and changes nothing
+- a rotation to an attacker's key is offered for confirmation, never followed
+- endorsements from trusted anchors surface as candidates that are **not** in the anchor set
+- accepting a retirement drops what that anchor rooted — measured, and exactly why it is manual
+- relays may carry anchor actions, but manufactured ones are caught
+
 ### `verify:aggregator` — 16 checks
 
 Runs the real CI aggregator as a subprocess and re-verifies its output with the app's verifier:
@@ -740,8 +751,23 @@ opinion clustering, bridge-finding, and a daily analysis pass on the CI compute 
 **Moderation.** *Complete.* Signed flags, cross-group corroboration, reader-sovereign policy, and
 issuer-only vouch revocation.
 
-**Still outstanding:** anchor governance (how a community adds and removes anchors collectively,
-rather than each device deciding alone).
+**Anchor governance.** *Complete.* Anchors can sign endorsements, key rotations and retirements,
+and those propagate like any other signed record — but **nothing applies automatically**. Anchors
+are the axioms of the trust graph, so a network process that edited them would be using derived
+trust to choose what trust derives from: circular, and capturable in both directions (a cartel
+voting itself in, or a majority voting a rival out). Every action arrives as evidence for a decision
+the device owner makes.
+
+Auto-applying a retirement is the tempting exception, since removing an axiom shrinks trust rather
+than inflating it. It is still refused: a stolen anchor key could otherwise sign one message and
+collapse the standing of everyone that anchor ever vouched for.
+
+Bootstrapping stays out of band and must — the first anchor cannot be endorsed by an anchor you
+already trust. The app shows the human-checkable fingerprint and requires you to confirm you
+checked it against the poster, the broadcast, or the person.
+
+**Still outstanding:** nothing from the original roadmap. The honest remaining limits are the ones
+listed on the identity page: English only, and no appeals process.
 
 **Language: this build is English-only, by decision.** An earlier version tagged every listing,
 statement and identity with a language and offered a picker — English, Nigerian Pidgin, Hausa,

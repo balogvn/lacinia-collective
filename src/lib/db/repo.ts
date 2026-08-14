@@ -26,6 +26,7 @@ import {
   type Vote,
   type Flag,
   type VoucherRevocation,
+  type AnchorAction,
   TrustTier,
   VoucherStatus,
   VoteValue,
@@ -33,6 +34,7 @@ import {
 import { voteIdFor } from '../deliberate/ids'
 import { verifyFlag } from '../moderate/flag'
 import { verifyRevocation } from '../moderate/revoke'
+import { verifyAnchorAction } from '../anchor/governance'
 import { emptyPullState, type PullState } from '../sync/transport'
 import { createClock, now as hlcNow, receive as hlcReceive, compareHLC, type ClockState, type HLC } from '../hlc'
 import { contentId, fingerprint, idToPubKey, type KeyPair } from '../crypto/keys'
@@ -714,6 +716,23 @@ export async function listRevocations(): Promise<VoucherRevocation[]> {
   return getDB().revocations.toArray()
 }
 
+export async function saveAnchorAction(action: AnchorAction): Promise<void> {
+  const db = getDB()
+  if (!verifyAnchorAction(action)) {
+    throw new Error('Refusing to store an anchor action that fails its own signature check.')
+  }
+  const hlc = action.hlc || (await stamp())
+  const record: AnchorAction = { ...action, hlc }
+  await db.transaction('rw', db.anchorActions, db.oplog, db.meta, async () => {
+    await db.anchorActions.put(record)
+    await appendOp('anchorAction', record.id, 'put', record, hlc)
+  })
+}
+
+export async function listAnchorActions(): Promise<AnchorAction[]> {
+  return getDB().anchorActions.toArray()
+}
+
 /* ──────────────────────────── sync ──────────────────────────── */
 
 const SYNC_STATE_PREFIX = 'sync.state.'
@@ -765,6 +784,7 @@ export class DexieMergeStore implements MergeStore {
     vote: () => getDB().votes,
     flag: () => getDB().flags,
     revocation: () => getDB().revocations,
+    anchorAction: () => getDB().anchorActions,
   } as const
 
   async currentHlc(entity: OpEntity, entityId: string): Promise<HLC | undefined> {

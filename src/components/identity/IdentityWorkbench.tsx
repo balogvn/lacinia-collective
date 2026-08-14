@@ -123,7 +123,12 @@ export function IdentityWorkbench() {
         <SyncPanel keyPair={commons.keyPair} onMerged={commons.refresh} />
       </div>
 
-      <AnchorPanel anchors={commons.anchors} onChange={commons.refresh} />
+      <AnchorPanel
+        anchors={commons.anchors}
+        selfPub={commons.identity.pubKey}
+        keyPair={commons.keyPair}
+        onChange={commons.refresh}
+      />
 
       <VaultPanel
         hasPin={commons.hasPin}
@@ -165,7 +170,6 @@ export function IdentityWorkbench() {
             <p className="font-mono text-[10px] uppercase tracking-wider text-paper">Not built</p>
             <ul className="mt-3 space-y-2 font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper/45">
               <li>— English only. Nothing translates, so a statement in Hausa stays invisible to a Yorùbá speaker here</li>
-              <li>— Anchor governance: each device decides its own anchors alone</li>
               <li>— No appeals process. There is no server to arbitrate one</li>
             </ul>
           </div>

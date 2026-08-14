@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "verify:protocol": "tsx scripts/verify-protocol.mts",
     "verify:sync": "tsx scripts/verify-sync.mts",
-    "verify": "npm run verify:protocol && npm run verify:sync && npm run verify:ledger && npm run verify:deliberate && npm run verify:moderation && npm run verify:aggregator",
+    "verify": "npm run verify:protocol && npm run verify:sync && npm run verify:ledger && npm run verify:deliberate && npm run verify:moderation && npm run verify:anchors && npm run verify:aggregator",
     "verify:aggregator": "tsx scripts/verify-aggregator.mts",
     "aggregate": "node scripts/aggregate-bundles.mjs",
     "verify:ledger": "tsx scripts/verify-ledger.mts",
@@ -19,7 +19,8 @@
     "analyse": "tsx scripts/analyse-deliberation.mts",
     "verify:moderation": "tsx scripts/verify-moderation.mts",
     "build:pages": "NEXT_PUBLIC_BASE_PATH=/lacinia-collective next build",
-    "preview:pages": "node scripts/preview-pages.mjs"
+    "preview:pages": "node scripts/preview-pages.mjs",
+    "verify:anchors": "tsx scripts/verify-anchors.mts"
   },
   "dependencies": {
     "@noble/ed25519": "^2.1.0",

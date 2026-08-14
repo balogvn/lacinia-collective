@@ -38,6 +38,7 @@ import { reverifyStoredVoucher } from '../vouch/protocol'
 import { reverifyEntry } from '../ledger/entry'
 import { verifyFlag } from '../moderate/flag'
 import { verifyRevocation } from '../moderate/revoke'
+import { verifyAnchorAction } from '../anchor/governance'
 import {
   VoucherStatus,
   type OpEntity,
@@ -48,6 +49,7 @@ import {
   type LedgerEntry,
   type Flag,
   type VoucherRevocation,
+  type AnchorAction,
 } from '../db/schema'
 import type { HLC } from '../hlc'
 import { log } from '../telemetry'
@@ -201,6 +203,16 @@ const AUTHORIZERS: Record<
   revocation: (record, op) => {
     const id = record.id
     if (typeof id !== 'string') return 'revocation has no id'
+    if (id !== op.entityId) return 'entityId does not match record.id'
+    return null
+  },
+
+  // Self-authenticating and relayable, like vouchers and revocations: a
+  // rotation is useless if it only reaches devices the anchor personally
+  // synced with.
+  anchorAction: (record, op) => {
+    const id = record.id
+    if (typeof id !== 'string') return 'anchor action has no id'
     if (id !== op.entityId) return 'entityId does not match record.id'
     return null
   },
@@ -362,6 +374,18 @@ export function verifySignedOp(op: SignedOp, now = Date.now()): OpVerdict {
       return reject(
         OpRejectReason.InvalidAttestation,
         'revocation failed its own signature check — only the issuer may revoke',
+      )
+    }
+  }
+
+  // Signed by the anchor itself. Without this check a relay could manufacture
+  // endorsements and rotations, which is a route to installing an
+  // attacker-chosen axiom at the root of everyone's trust graph.
+  if (op.entity === 'anchorAction' && op.op === 'put') {
+    if (!verifyAnchorAction(record as unknown as AnchorAction)) {
+      return reject(
+        OpRejectReason.InvalidAttestation,
+        'anchor action failed its own signature check',
       )
     }
   }
