@@ -58,7 +58,9 @@ same-origin and needs no CORS anywhere.
    vouchers, four listings, and a 21-person deliberation.
 3. **Trust the demo anchor** under *Anchors → Manage*, or every score stays at
    zero and the trust ladder looks broken. Anchors are the axioms of the graph
-   and are deliberately never shipped in the app — each device chooses its own:
+   and are deliberately never shipped in the app — each device chooses its own.
+   This one is a throwaway used to make the sample data legible; the real root
+   is in [The founding anchor](#the-founding-anchor):
 
    ```
    gWVqfrhfO_YWrXDFglNL2snYl6Tb6drT7md7BO70qF8
@@ -75,9 +77,37 @@ Then `/deliberate` shows the moderation layer doing the thing it exists for:
 
 More flags survives; fewer flags corroborated across the divide does not.
 
-> The demo data is synthetic — generated keys, invented traders, an invented
-> market levy. The abusive statement exists solely so the moderation layer has
-> something real to catch.
+> The demo data is synthetic — throwaway keys, invented traders, an invented
+> market levy. Its anchor key was generated during a seed run and its secret was
+> never kept, so nobody can act as it. That is fine for illustration and useless
+> as a root of trust, which is what the next section is for.
+
+---
+
+## The founding anchor
+
+The demo anchor above exists only to make the sample conversation show trust
+working. The real root of this commons is a key someone actually holds:
+
+```
+gB7qR0vuqtKJHQspmakOU0gVIBrF-fH8Y3llRP_x56I
+```
+
+Fingerprint **`G2YH-NBDP-RN54`**. Check that fingerprint, not the long string —
+forty-three characters of base64 cannot be compared by eye, twelve grouped
+characters can, and the app asks you to confirm you checked it before it will
+add an anchor.
+
+Trusting this key roots your trust graph in it. Nothing obliges you to, and the
+app ships with no anchors at all — a fresh install trusts nobody, including
+whoever wrote it.
+
+**What being an anchor does and does not mean.** It is not an admin account.
+There is no login, no console, and no privileged code path anywhere in this
+repository — `getAnchors()` returns `[]` on a fresh device and the Remove button
+works on any anchor including yourself. An anchor's reach is exactly the number
+of people who chose to paste its key, and it becomes meaningful only through
+vouching people in person. A published key with no vouches confers nothing.
 
 ---
 
