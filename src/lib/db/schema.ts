@@ -81,7 +81,16 @@ export interface UserIdentity {
   /** Human-checkable short form, e.g. "K4T9-M2XW-8BQR". Derived, cached for display. */
   fingerprint: string
   displayName: string
-  /** True for exactly one row: this device's owner. */
+  /**
+   * DO NOT READ THIS TO DECIDE WHOSE DEVICE THIS IS. Resolve identity from the
+   * vault's key instead — see db/self.ts.
+   *
+   * This is a LOCAL fact that travels inside the signed, synced record, so
+   * every published identity arrives asserting `isSelf: true` about itself.
+   * Trusting it meant a device could adopt a stranger's name and fingerprint
+   * while signing with its own key. Retained only because it sits inside
+   * already-published signed bytes.
+   */
   isSelf: boolean
   /**
    * Stable per-installation id. Distinct from pubKey because one identity may

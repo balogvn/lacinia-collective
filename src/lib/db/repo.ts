@@ -32,6 +32,7 @@ import {
   VoteValue,
 } from './schema'
 import { voteIdFor } from '../deliberate/ids'
+import { pickSelf } from './self'
 import { verifyFlag } from '../moderate/flag'
 import { verifyRevocation } from '../moderate/revoke'
 import { verifyAnchorAction } from '../anchor/governance'
@@ -236,10 +237,13 @@ export async function markOpsSynced(ids: readonly string[]): Promise<void> {
 /* ──────────────────────────── identity ──────────────────────────── */
 
 export async function getSelf(): Promise<UserIdentity | undefined> {
-  // Dexie cannot index booleans reliably across engines; filter in JS. The
-  // identities table holds tens of rows, not thousands.
-  const all = await getDB().identities.toArray()
-  return all.find((i) => i.isSelf && !i.deleted)
+  // Resolved from the VAULT's key, never from the synced `isSelf` flag — see
+  // db/self.ts for the shadowing bug that caused.
+  const db = getDB()
+  const vault = await db.vault.get('self')
+  if (!vault) return undefined
+  const all = await db.identities.toArray()
+  return pickSelf(all, vault.pubKey)
 }
 
 export async function createSelfIdentity(

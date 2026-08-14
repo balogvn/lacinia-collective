@@ -34,7 +34,8 @@ import {
   type KeyPair,
 } from '../src/lib/crypto/keys'
 import { createVouchRequest, parseVouchRequest, issueVoucher } from '../src/lib/vouch/protocol'
-import { TrustTier, VoucherStatus, type TrustVoucher } from '../src/lib/db/schema'
+import { TrustTier, VoucherStatus, type TrustVoucher, type UserIdentity } from '../src/lib/db/schema'
+import { pickSelf, peersOf } from '../src/lib/db/self'
 import { createClock, now as hlcNow } from '../src/lib/hlc'
 import { configureTelemetry } from '../src/lib/telemetry'
 
@@ -646,6 +647,56 @@ section('8. Transport — cursors, 304s and failure')
     'already-seen bundles are skipped even if newer',
     selectNewEntries(manifest, null, new Set([goodBundle.id])).length === 0,
   )
+}
+
+/* ─────────────────── 8b. local facts inside synced records ─────────────────── */
+
+section('8b. Local facts must not be read from synced records')
+{
+  // `isSelf` means "this row is my device's owner", but it sits inside the
+  // signed record and so travels. After a sync a device holds several rows all
+  // asserting isSelf:true about themselves.
+  const me = generateEphemeralKeyPair()
+  const founder = generateEphemeralKeyPair()
+
+  const row = (k: KeyPair, name: string): UserIdentity => ({
+    pubKey: k.pubKeyId,
+    fingerprint: 'XXXX-XXXX-XXXX',
+    displayName: name,
+    isSelf: true, // as published — every identity claims this about itself
+    deviceId: 'd',
+    createdAt: 1,
+    hlc: '0',
+  })
+
+  // Dexie returns rows in primary-key order, and base64url sorts lowercase
+  // last — so a founder key can genuinely precede a user's own.
+  const asStored = [row(founder, 'Founder'), row(me, 'Me')].sort((a, b) =>
+    a.pubKey < b.pubKey ? -1 : 1,
+  )
+
+  const naive = asStored.find((i) => i.isSelf && !i.deleted)
+  const resolved = pickSelf(asStored, me.pubKeyId)
+
+  check(
+    'the naive isSelf lookup can return the WRONG identity',
+    naive!.pubKey !== me.pubKeyId || asStored[0]!.pubKey === me.pubKeyId,
+    naive!.pubKey === me.pubKeyId ? 'ordering favoured us this time' : 'it returned the founder',
+  )
+  check(
+    'resolving from the vault key always returns this device',
+    resolved?.pubKey === me.pubKeyId && resolved?.displayName === 'Me',
+  )
+  check(
+    'a synced row claiming isSelf never shadows the vault key',
+    pickSelf(asStored, me.pubKeyId)?.pubKey === me.pubKeyId,
+  )
+  check(
+    'peers exclude this device and include everyone else',
+    peersOf(asStored, me.pubKeyId).length === 1 &&
+      peersOf(asStored, me.pubKeyId)[0]!.pubKey === founder.pubKeyId,
+  )
+  check('with no vault there is no self', pickSelf(asStored, null) === undefined)
 }
 
 /* ─────────────────── 9. data cost ─────────────────── */

@@ -130,7 +130,8 @@ export function useCommons() {
         identity: identity ?? null,
         keyPair,
         vouchers,
-        peers: peers.filter((p) => !p.isSelf),
+        // Derived from the vault key, not the synced isSelf flag.
+        peers: peers.filter((p) => !p.deleted && p.pubKey !== vault?.pubKey),
         graph,
         trust,
         anchors,

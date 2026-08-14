@@ -3,11 +3,11 @@
   "updatedAt": 0,
   "entries": [
     {
-      "path": "snapshot-db05304e5abee549.json",
-      "id": "db05304e5abee54967f1629eb7976d0b",
-      "hlcMax": "01a001203a030001-delibsd",
-      "opCount": 189,
-      "bytes": 127402
+      "path": "snapshot-6c4b8e34e7dfaea7.json",
+      "id": "6c4b8e34e7dfaea7e83fb6b1f95c31b0",
+      "hlcMax": "01a0015989240000-665a2ab0",
+      "opCount": 190,
+      "bytes": 127958
     }
   ]
 }
