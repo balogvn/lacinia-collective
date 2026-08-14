@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { NIGERIAN_STATES } from '@/lib/data/nigeria'
+import { COUNTRIES, guessCountry } from '@/lib/data/countries'
+import { cleanLocality } from '@/lib/locality'
 import { isValidRecoveryPhrase } from '@/lib/crypto/keys'
 
 interface Props {
   onCreate: (input: {
     displayName: string
-    locality?: { state: string; lga: string }
+    locality?: import('@/lib/db/schema').Locality
   }) => Promise<{ phrase: string }>
   onRestore: (phrase: string, displayName: string) => Promise<unknown>
 }
@@ -17,8 +18,8 @@ type Mode = 'create' | 'restore'
 export function CreateIdentity({ onCreate, onRestore }: Props) {
   const [mode, setMode] = useState<Mode>('create')
   const [displayName, setDisplayName] = useState('')
-  const [state, setState] = useState('')
-  const [lga, setLga] = useState('')
+  const [country, setCountry] = useState(() => guessCountry() ?? '')
+  const [area, setArea] = useState('')
   const [restorePhrase, setRestorePhrase] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +34,7 @@ export function CreateIdentity({ onCreate, onRestore }: Props) {
       // re-render that follows identity creation. See RecoveryPhrase.tsx.
       await onCreate({
         displayName,
-        ...(state && lga ? { locality: { state, lga } } : {}),
+        ...(() => { const l = cleanLocality({ country, area }); return l ? { locality: l } : {} })(),
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -102,23 +103,26 @@ export function CreateIdentity({ onCreate, onRestore }: Props) {
         {mode === 'create' ? (
           <>
             <label className="block">
-              <span className="eyebrow">State</span>
-              <select value={state} onChange={(e) => setState(e.target.value)} className="field mt-2">
+              <span className="eyebrow">Country</span>
+              <select value={country} onChange={(e) => setCountry(e.target.value)} className="field mt-2">
                 <option value="">Prefer not to say</option>
-                {NIGERIAN_STATES.map((s) => (
-                  <option key={s} value={s} className="bg-canvas-deep">
-                    {s}
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code} className="bg-canvas-deep">
+                    {c.name}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="block">
-              <span className="eyebrow">Local Government Area</span>
+              {/* Free text: the local unit is called something different almost
+                  everywhere, and nobody should have to find their home in
+                  another country's taxonomy. */}
+              <span className="eyebrow">Your area</span>
               <input
-                value={lga}
-                onChange={(e) => setLga(e.target.value)}
-                placeholder="e.g. Ikorodu"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Town, district or neighbourhood"
                 className="field mt-2"
               />
             </label>

@@ -108,7 +108,7 @@ export function MarketWorkbench() {
         people={market.people}
         selfPub={commons.identity.pubKey}
         myTier={market.myTier}
-        {...(commons.identity.locality?.lga ? { myLga: commons.identity.locality.lga } : {})}
+        {...(commons.identity.locality ? { myLocality: commons.identity.locality } : {})}
         onSettle={(listing) => {
           setSettling(listing)
           setBenchOpen(true)

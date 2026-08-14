@@ -48,6 +48,15 @@ import {
 import { computeTrustGraph, lookupTrust } from '../src/lib/vouch/trust'
 import { TrustTier, VoucherStatus, type TrustVoucher } from '../src/lib/db/schema'
 import { createClock, now as hlcNow, receive as hlcReceive, compareHLC } from '../src/lib/hlc'
+import {
+  localityArea,
+  localityRegion,
+  formatLocality,
+  sameArea,
+  cleanLocality,
+} from '../src/lib/locality'
+import { COUNTRIES, countryName, isCountryCode } from '../src/lib/data/countries'
+import { canonicalize } from '../src/lib/sync/canonical'
 import { configureTelemetry } from '../src/lib/telemetry'
 
 configureTelemetry({ mirrorToConsole: false })
@@ -580,6 +589,74 @@ section('7. Hybrid logical clock')
   const sane = createClock('devSane')
   const afterWild = hlcReceive(sane, wild, 1_700_000_000_000)
   check('extreme skew is absorbed, not dropped', compareHLC(afterWild, wild) > 0)
+}
+
+/* ─────────────────── 8. locality, across two record shapes ─────────────────── */
+
+section('8. Locality — the Nigeria-only shape must keep working worldwide')
+{
+  // The published commons was written when a place was `{ state, lga }`. Those
+  // records are SIGNED and already in other people's databases, so widening the
+  // app to every country cannot rename a field or re-sort a key — the old bytes
+  // have to keep verifying, and the old listings have to keep matching their
+  // own neighbours.
+  const legacy = { state: 'Lagos', lga: 'Ikorodu' }
+  const modern = { country: 'NG', region: 'Lagos', area: 'Ikorodu' }
+
+  check('legacy `lga` still reads as the local area', localityArea(legacy) === 'Ikorodu')
+  check('legacy `state` still reads as the region', localityRegion(legacy) === 'Lagos')
+  check('modern `area` wins over legacy `lga`', localityArea({ ...legacy, area: 'Epe' }) === 'Epe')
+  check('modern `region` wins over legacy `state`', localityRegion({ ...legacy, region: 'Ogun' }) === 'Ogun')
+
+  check('a legacy place still renders', formatLocality(legacy) === 'Ikorodu, Lagos')
+  check('a modern place spells the country out', formatLocality(modern) === 'Ikorodu, Lagos, Nigeria')
+  check('country alone is enough to render', formatLocality({ country: 'KE' }) === 'Kenya')
+  check('an empty place renders as nothing', formatLocality({}) === undefined)
+  check('a blank-string place renders as nothing', formatLocality({ area: '   ' }) === undefined)
+
+  // The migration failure that would be invisible locally and fatal in the
+  // field: a device that upgrades and re-files itself as NG/Ikorodu must still
+  // see the Ikorodu listings published before countries existed.
+  check('a legacy listing still matches an upgraded neighbour', sameArea(legacy, modern))
+  check('proximity ignores case', sameArea({ area: 'IKORODU' }, { area: 'ikorodu' }))
+  check('a missing country never disqualifies a match', sameArea({ area: 'Ikorodu' }, modern))
+
+  // …and the failure the country field exists to prevent.
+  check(
+    'same area name in different countries is not the same place',
+    !sameArea({ country: 'US', area: 'Springfield' }, { country: 'ZA', area: 'Springfield' }),
+  )
+  check('no area means no proximity claim', !sameArea({ country: 'NG' }, { country: 'NG' }))
+  check('an absent place matches nothing', !sameArea(undefined, modern))
+
+  check('blank input produces no locality at all', cleanLocality({ country: '', area: '  ' }) === undefined)
+  check(
+    'input is trimmed before it can reach signed bytes',
+    canonicalize(cleanLocality({ country: 'NG', area: '  Ikorodu  ' })) ===
+      canonicalize({ country: 'NG', area: 'Ikorodu' }),
+  )
+  check(
+    'an absent field is omitted, not stored as empty',
+    canonicalize(cleanLocality({ country: 'NG', area: 'Ikorodu', region: '' })) ===
+      '{"area":"Ikorodu","country":"NG"}',
+  )
+
+  // Widening the type must not have changed what a legacy record canonicalizes
+  // to. If this drifts, every signature over an old place breaks at once.
+  check(
+    'legacy bytes are byte-identical under the widened schema',
+    canonicalize(legacy) === '{"lga":"Ikorodu","state":"Lagos"}',
+  )
+
+  const codes = new Set(COUNTRIES.map((c) => c.code))
+  check('country list parsed', COUNTRIES.length > 190, `${COUNTRIES.length} entries`)
+  check('no duplicate country codes', codes.size === COUNTRIES.length)
+  check(
+    'every entry has a two-letter code and a name',
+    COUNTRIES.every((c) => /^[A-Z]{2}$/.test(c.code) && c.name.length > 1),
+  )
+  check('a known code resolves', countryName('NG') === 'Nigeria' && isCountryCode('NG'))
+  check('an invented code does not', countryName('ZZ') === undefined && !isCountryCode('ZZ'))
 }
 
 /* ─────────────────────────── report ─────────────────────────── */

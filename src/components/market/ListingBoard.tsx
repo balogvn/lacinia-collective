@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import { formatCredits } from '@/lib/ledger/balance'
 import { fingerprintFromId } from '@/lib/crypto/keys'
+import { formatLocality, localityArea, sameArea } from '@/lib/locality'
 import {
   ResourceCategory,
   ResourceKind,
@@ -19,7 +20,7 @@ interface Props {
   people: UserIdentity[]
   selfPub: PubKeyId
   myTier: TrustTier
-  myLga?: string
+  myLocality?: import('@/lib/db/schema').Locality
   onSettle: (listing: ResourceListing) => void
   onWithdraw: (listing: ResourceListing) => void
 }
@@ -42,7 +43,7 @@ export function ListingBoard({
   people,
   selfPub,
   myTier,
-  myLga,
+  myLocality,
   onSettle,
   onWithdraw,
 }: Props) {
@@ -57,18 +58,18 @@ export function ListingBoard({
     return listings
       .filter((l) => (kind === 'ALL' ? true : l.kind === kind))
       .filter((l) => (category === 'ALL' ? true : l.category === category))
-      .filter((l) => (nearbyOnly && myLga ? l.locality.lga === myLga : true))
+      .filter((l) => (nearbyOnly && myLocality ? sameArea(l.locality, myLocality) : true))
       .sort((a, b) => {
         // Aid is intensely local — a bag of rice in Ikorodu is useless in Kano,
         // so same-LGA listings sort first regardless of recency.
-        if (myLga) {
-          const aNear = a.locality.lga === myLga ? 0 : 1
-          const bNear = b.locality.lga === myLga ? 0 : 1
+        if (myLocality) {
+          const aNear = sameArea(a.locality, myLocality) ? 0 : 1
+          const bNear = sameArea(b.locality, myLocality) ? 0 : 1
           if (aNear !== bNear) return aNear - bNear
         }
         return b.createdAt - a.createdAt
       })
-  }, [listings, kind, category, nearbyOnly, myLga])
+  }, [listings, kind, category, nearbyOnly, myLocality])
 
   return (
     <section className="border border-paper/30">
@@ -107,7 +108,7 @@ export function ListingBoard({
           ))}
         </select>
 
-        {myLga ? (
+        {localityArea(myLocality) ? (
           <button
             onClick={() => setNearbyOnly((v) => !v)}
             aria-pressed={nearbyOnly}
@@ -117,7 +118,7 @@ export function ListingBoard({
                 : 'border-paper/30 text-paper-dim hover:border-paper/70'
             }`}
           >
-            {myLga} only
+            {localityArea(myLocality)} only
           </button>
         ) : null}
       </div>
@@ -158,7 +159,8 @@ export function ListingBoard({
                     ) : null}
 
                     <p className="mt-2.5 font-mono text-[10px] uppercase tracking-wider text-paper/45">
-                      {nameFor(listing.authorPub)} · {listing.locality.lga}, {listing.locality.state}
+                      {nameFor(listing.authorPub)}
+                      {formatLocality(listing.locality) ? ` · ${formatLocality(listing.locality)}` : ''}
                       {listing.quantity > 1 ? ` · ${listing.quantity}${listing.unit ? ` ${listing.unit}` : ''}` : ''}
                     </p>
                   </div>

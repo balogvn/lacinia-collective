@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 
-import { NIGERIAN_STATES } from '@/lib/data/nigeria'
+import { COUNTRIES, guessCountry } from '@/lib/data/countries'
+import { cleanLocality, localityArea } from '@/lib/locality'
 import { formatCredits } from '@/lib/ledger/balance'
 import {
   ResourceCategory,
@@ -41,8 +42,8 @@ export function ListingComposer({ identity, myTier, onPublish }: Props) {
   const [description, setDescription] = useState('')
   const [credits, setCredits] = useState(60)
   const [quantity, setQuantity] = useState(1)
-  const [state, setState] = useState(identity.locality?.state ?? '')
-  const [lga, setLga] = useState(identity.locality?.lga ?? '')
+  const [country, setCountry] = useState(identity.locality?.country ?? guessCountry() ?? '')
+  const [area, setArea] = useState(localityArea(identity.locality) ?? '')
   const [minTier, setMinTier] = useState<TrustTier>(TrustTier.Observer)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +60,7 @@ export function ListingComposer({ identity, myTier, onPublish }: Props) {
         description: description.trim(),
         timeCredits: credits,
         quantity,
-        locality: { state, lga },
+        locality: cleanLocality({ country, area }) ?? {},
         minTrustTier: minTier,
         expiresAt: Date.now() + DEFAULT_TTL_MS,
       })
@@ -75,8 +76,7 @@ export function ListingComposer({ identity, myTier, onPublish }: Props) {
 
   const valid =
     title.trim().length > 0 &&
-    state.length > 0 &&
-    lga.trim().length > 0 &&
+    area.trim().length > 0 &&
     Number.isInteger(credits) &&
     credits >= 0 &&
     credits <= MAX_ENTRY_CREDITS
@@ -190,23 +190,23 @@ export function ListingComposer({ identity, myTier, onPublish }: Props) {
             </div>
 
             <label className="block">
-              <span className="eyebrow">State</span>
-              <select value={state} onChange={(e) => setState(e.target.value)} className="field mt-2">
+              <span className="eyebrow">Country</span>
+              <select value={country} onChange={(e) => setCountry(e.target.value)} className="field mt-2">
                 <option value="">Choose…</option>
-                {NIGERIAN_STATES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="block">
-              <span className="eyebrow">Local Government Area</span>
+              <span className="eyebrow">Your area</span>
               <input
-                value={lga}
-                onChange={(e) => setLga(e.target.value)}
-                placeholder="e.g. Ikorodu"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Town, district or neighbourhood"
                 className="field mt-2"
               />
             </label>

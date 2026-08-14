@@ -47,7 +47,7 @@ for (const person of people) {
     displayName: person.name,
     isSelf: false,
     deviceId: '',
-    locality: { state: 'Lagos', lga: person.lga },
+    locality: { country: 'NG', region: 'Lagos', area: person.lga },
     createdAt: 1_700_000_000_000,
     hlc,
   }
@@ -120,7 +120,7 @@ offers.forEach((offer, i) => {
         description: 'Seeded demonstration listing.',
         timeCredits: offer.credits,
         quantity: 1,
-        locality: { state: 'Lagos', lga: 'Ikorodu' },
+        locality: { country: 'NG', region: 'Lagos', area: 'Ikorodu' },
         minTrustTier: TrustTier.Observer,
         status: 'OPEN',
         createdAt: 1_700_000_000_000,

@@ -40,7 +40,7 @@ const conversation = {
   authorPub: convener.pubKeyId,
   title: 'The market levy',
   prompt: 'What should change about how the daily levy is collected and spent?',
-  locality: { state: 'Lagos', lga: 'Ikorodu' },
+  locality: { country: 'NG', region: 'Lagos', area: 'Ikorodu' },
   createdAt: CREATED,
   closesAt: CREATED + 90 * 86_400_000,
   hlc: tick(),

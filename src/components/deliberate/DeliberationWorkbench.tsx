@@ -10,7 +10,8 @@ import { useModeration } from '@/hooks/useModeration'
 import { VoteQueue } from './VoteQueue'
 import { OpinionResults } from './OpinionResults'
 import { PolicyPanel } from '@/components/moderate/PolicyPanel'
-import { NIGERIAN_STATES } from '@/lib/data/nigeria'
+import { COUNTRIES } from '@/lib/data/countries'
+import { cleanLocality, formatLocality } from '@/lib/locality'
 
 export function DeliberationWorkbench() {
   const commons = useCommons()
@@ -25,8 +26,12 @@ export function DeliberationWorkbench() {
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
-  const [lga, setLga] = useState('')
-  const [state, setState] = useState('')
+  const [area, setArea] = useState('')
+  // Unlike the identity form, this does NOT preselect a guessed country. The
+  // guess answers "where do you live", which is not the question here — a
+  // conversation about a shared policy may belong to no country at all, and
+  // filing it under one by default would hide it from everyone else.
+  const [country, setCountry] = useState('')
 
   if (!commons.ready || !delib.ready) {
     return (
@@ -68,7 +73,7 @@ export function DeliberationWorkbench() {
       authorPub: commons.identity!.pubKey,
       title,
       prompt,
-      ...(state && lga ? { locality: { state, lga } } : {}),
+      ...(() => { const l = cleanLocality({ country, area }); return l ? { locality: l } : {} })(),
     })
     setActiveId(id)
     setTitle('')
@@ -114,22 +119,22 @@ export function DeliberationWorkbench() {
               />
             </label>
             <label className="block">
-              <span className="eyebrow">State</span>
-              <select value={state} onChange={(e) => setState(e.target.value)} className="field mt-2">
+              <span className="eyebrow">Country</span>
+              <select value={country} onChange={(e) => setCountry(e.target.value)} className="field mt-2">
                 <option value="">Anywhere</option>
-                {NIGERIAN_STATES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
                   </option>
                 ))}
               </select>
             </label>
             <label className="block">
-              <span className="eyebrow">Local Government Area</span>
+              <span className="eyebrow">Area</span>
               <input
-                value={lga}
-                onChange={(e) => setLga(e.target.value)}
-                placeholder="e.g. Ikorodu"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Town, district or neighbourhood"
                 className="field mt-2"
               />
             </label>
@@ -165,7 +170,7 @@ export function DeliberationWorkbench() {
                     {c.prompt}
                   </span>
                   <span className="mt-1.5 block font-mono text-[9px] uppercase tracking-wider text-paper/40">
-                    {c.locality ? `${c.locality.lga}, ${c.locality.state}` : 'Anywhere'}
+                    {formatLocality(c.locality) ?? 'Anywhere'}
                   </span>
                 </button>
               </li>

@@ -262,6 +262,19 @@ export default function GuidePage() {
               used when you sync, which is kept deliberately tiny.
             </p>
           </Q>
+          <Q q="Does it only work where I live?">
+            <p>
+              It works anywhere. You pick your country and type your own area in your own words —
+              town, ward, barangay, bairro, estate, whatever you actually call it. Nobody has to fit
+              their home into another country&rsquo;s list of names.
+            </p>
+            <p>
+              You are not joining a global network, though. A group is simply the people who sync
+              with the same list, so what you see is your own community and not the whole world. If
+              your group wants its own noticeboard, anybody can run one — nobody needs permission,
+              and there is nobody to ask.
+            </p>
+          </Q>
         </div>
 
         <div className="mt-14 border-t border-paper/25 pt-8">

@@ -21,14 +21,34 @@ import type { HLC } from '../hlc'
 export type PubKeyId = string
 
 /**
- * Nigeria-specific placement. Aid is intensely local — a bag of rice in Ikorodu
- * is useless to someone in Kano — so LGA is the unit that matters, not state.
+ * Where something is. Aid is intensely local — a bag of rice two hours away is
+ * useless — so the small unit is what matters, not the big one.
+ *
+ * COUNTRY CODE + FREE TEXT, deliberately. The obvious way to go global is to
+ * ship every country's administrative divisions, but that dataset is megabytes
+ * and this app has to work on a metered connection. Free text also avoids
+ * imposing one country's vocabulary on everyone else: a Nigerian types their
+ * LGA, a Kenyan their ward, a Brazilian their bairro, a Scot their council
+ * area, and none of them has to find their home in someone else's taxonomy.
+ *
+ * Every field is optional because records published by the Nigeria-only build
+ * used `state`/`lga`, and those sit inside signed bytes that must keep
+ * verifying. Read locality through the helpers in lib/locality.ts rather than
+ * touching these fields, so both shapes are handled in one place.
  */
 export interface Locality {
-  state: string
-  /** Local Government Area. */
-  lga: string
-  /** Optional ward/neighbourhood, free text. */
+  /** ISO 3166-1 alpha-2, e.g. "NG", "KE", "BR". */
+  country?: string
+  /** The local unit: LGA, ward, district, borough, comuna — whatever it is called. */
+  area?: string
+  /** Larger division, where one exists: state, province, region, governorate. */
+  region?: string
+
+  /** @deprecated Written by the Nigeria-only build. Read via lib/locality.ts. */
+  state?: string
+  /** @deprecated Written by the Nigeria-only build. Read via lib/locality.ts. */
+  lga?: string
+  /** Optional neighbourhood, free text. */
   ward?: string
 }
 

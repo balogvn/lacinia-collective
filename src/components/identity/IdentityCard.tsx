@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { TRUST_TIER_LABELS, TrustTier, type UserIdentity } from '@/lib/db/schema'
 import { explainTrust, type TrustNode } from '@/lib/vouch/trust'
+import { formatLocality } from '@/lib/locality'
 
 interface Props {
   identity: UserIdentity
@@ -42,9 +43,7 @@ export function IdentityCard({ identity, trust, voucherCount }: Props) {
             {identity.displayName}
           </h2>
           <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-paper-dim">
-            {identity.locality
-              ? `${identity.locality.lga}, ${identity.locality.state}`
-              : 'Location not shared'}
+            {formatLocality(identity.locality) ?? 'Location not shared'}
           </p>
         </div>
 

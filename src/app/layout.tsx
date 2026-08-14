@@ -5,7 +5,7 @@ import { ServiceWorkerRegistrar } from '@/components/system/ServiceWorkerRegistr
 export const metadata: Metadata = {
   title: 'The Lacinia Collective — trust without signal',
   description:
-    'An offline-first digital commons for Nigerian mutual aid: peer-vouched identity, time-banked resources, and civic deliberation that works with no network.',
+    'An offline-first digital commons for mutual aid, anywhere: peer-vouched identity, time-banked resources, and civic deliberation that works with no network.',
   // Next does not apply basePath to metadata URLs, so this is prefixed by hand.
   manifest: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/manifest.webmanifest`,
   applicationName: 'Lacinia',

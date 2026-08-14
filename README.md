@@ -1,7 +1,13 @@
 # The Lacinia Collective
 
-An offline-first digital commons for Nigerian mutual aid — peer-vouched identity, time-banked
-resources, and civic deliberation that works with the network off.
+An offline-first digital commons for mutual aid — peer-vouched identity, time-banked resources, and
+civic deliberation that works with the network off, anywhere in the world.
+
+It was designed against Nigerian conditions — metered data, patchy signal, low-end Android, and a
+real need to build trust across ethno-religious lines — because designing for the hardest case is
+the only way to know the easy ones are covered. Nothing in it is Nigeria-only: a place is a country
+code plus whatever you call your own area, and any group anywhere can run its own commons without
+asking anyone for permission. See [Running your own commons](#running-your-own-commons).
 
 Built on the *Plurality* premise that legitimacy comes from relationships across difference rather
 than from a platform. Practically, that means there is no server, no account and no central list of
@@ -27,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 319 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 343 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -158,8 +164,8 @@ The picker promised a capability that did not exist: someone posting in Hausa wo
 expect Hausa speakers to find it, and nothing whatsoever would happen. A control that misleads is
 worse than an absent one, so the tags and pickers were removed rather than left as decoration.
 
-Name the cost plainly: **a commons built to bridge divides in a country with hundreds of languages
-currently speaks one of them.** A Hausa statement is invisible to a Yorùbá speaker in the same
+Name the cost plainly: **a commons built to bridge divides, and usable in every country, currently
+speaks one language.** A Hausa statement is invisible to a Yorùbá speaker in the same
 conversation, and the bridging analysis in `deliberate/` can only cluster opinions it can read. That
 undercuts the central claim more than anything else on this page.
 
@@ -388,6 +394,37 @@ Because it reimplements canonicalization in dependency-free Node (so it can be r
 in Python), `npm run verify:aggregator` runs it as a subprocess against real signed ops and
 re-verifies its output with the app's own verifier. A one-byte divergence would break sync for every
 device in the network, and would otherwise surface weeks later as "sync mysteriously stopped".
+
+---
+
+## Running your own commons
+
+There is no Lacinia network to join and no registry to appear in. A commons is a **directory of
+static JSON files** at a URL, and a group is whoever has pasted that URL into their Sync sources.
+Two commons never conflict; a device may follow several, and every op is re-verified on arrival
+regardless of which one delivered it.
+
+```bash
+git clone https://github.com/balogvn/lacinia-collective && npm install
+```
+
+1. **Deploy the app.** Any static host works — GitHub Pages, Netlify, Vercel, a Raspberry Pi on a
+   school LAN, a folder on a USB stick. `npm run build` emits a fully static export. Set
+   `NEXT_PUBLIC_BASE_PATH` if it is served from a subdirectory.
+2. **Choose your anchors.** Create an identity, publish its public key and fingerprint where your
+   people can check them, and have them add it under *Anchors → Manage*. This is the only
+   irreducibly social step. The app ships with **no** anchors — not even the one above — so a fresh
+   install trusts nobody until someone chooses.
+3. **Accept contributions.** Members export a bundle and send it however they already talk; you drop
+   it into `public/commons/inbox/` and commit. `.github/workflows/aggregate.yml` verifies, merges
+   and compacts it into a snapshot on push and daily. The CI holds no signing key, so hosting a
+   commons grants no authority over it.
+4. **Or host nothing at all.** Steps 1–3 are a convenience. Two phones swapping animated QR frames
+   across a table are a complete commons with no host, no domain and no internet — which is the
+   configuration the whole protocol is designed around.
+
+A commons is not a jurisdiction. It has no borders, no admin and no shutdown switch, because there
+is nothing running that could be shut down.
 
 ---
 
@@ -688,9 +725,9 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 136 checks across three suites, each an attack or a field failure.
+`npm run verify` — 343 checks across seven suites, each an attack or a field failure.
 
-### `verify:protocol` — 71 checks
+### `verify:protocol` — 95 checks
 
 - codec round-trips at every length; UTF-8 truncation never splits a codepoint (Nigerian names make
   this the common case, not an edge case)
@@ -703,6 +740,10 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - Sybil clique of 60 fakes with 3,540 mutual vouches stays at Neighbour
 - scoring is order-independent, so two offline devices agree without communicating
 - HLC ordering, merge, and extreme-skew absorption
+- **the Nigeria-only `{state, lga}` records still verify and still match their own neighbours** —
+  widening a place to `{country, region, area}` touched a field inside already-signed bytes, and a
+  legacy listing that stopped matching upgraded neighbours would look like sync failing rather than
+  like a migration bug
 
 ### `verify:sync` — 68 checks
 
@@ -787,9 +828,11 @@ src/
 ├── hooks/                   useCommons, useMarketplace, useDeliberation
 └── lib/
     ├── codec.ts             binary wire format
+    ├── locality.ts          places, across the legacy and worldwide record shapes
     ├── hlc.ts               hybrid logical clock
     ├── telemetry.ts         client-side structured logging
     ├── crypto/              keypairs, signing, PIN vault
+    ├── data/                ISO 3166 country list
     ├── db/                  schema, Dexie wrapper, repositories
     ├── vouch/               protocol + trust graph
     ├── ledger/              settlement protocol + mutual-credit balances
@@ -797,7 +840,7 @@ src/
     ├── moderate/            flags, visibility policy, vouch revocation
     ├── sync/                canonical JSON, ops, bundles, merge, transport
     └── qr/                  render + scan
-scripts/                     six adversarial suites, CI aggregator, analyser, seeders
+scripts/                     seven adversarial suites, CI aggregator, analyser, seeders
 ```
 
 Layering is strict: `crypto` knows nothing of Dexie, `codec` knows nothing of crypto, `vouch`
