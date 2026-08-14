@@ -5,6 +5,13 @@
  * problems we do not have. On a metered 2G connection that is a real cost to
  * every user, forever, so we spend the 60 lines instead.
  *
+ * PATHS ARE RESOLVED FROM THE WORKER'S OWN LOCATION, never hardcoded to "/".
+ * GitHub Pages serves this app from /<repo>/, so a root-absolute precache list
+ * would 404 every entry and the offline shell would silently never exist — the
+ * failure mode being "the offline-first app does not work offline", discovered
+ * on a bus with no signal. `new URL('./', self.location)` gives the scope
+ * wherever the app is deployed: origin root, a project subpath, or a LAN host.
+ *
  * STRATEGY
  *   Navigations  → network-first, falling back to the cached shell. Keeps the
  *                  app usable with zero signal, which is the default state.
@@ -16,11 +23,14 @@
  * CRDT layer had already superseded.
  */
 
-const VERSION = 'lacinia-v1'
+const VERSION = 'lacinia-v2'
 const SHELL = `${VERSION}-shell`
 const ASSETS = `${VERSION}-assets`
 
-const PRECACHE = ['/', '/identity', '/manifest.webmanifest']
+/** Directory this worker was served from — the app's real base. */
+const BASE = new URL('./', self.location).href
+
+const PRECACHE = [BASE, `${BASE}identity/`, `${BASE}manifest.webmanifest`]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -61,7 +71,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cached = await caches.match(request)
-          return cached || (await caches.match('/')) || Response.error()
+          return cached || (await caches.match(BASE)) || Response.error()
         }),
     )
     return

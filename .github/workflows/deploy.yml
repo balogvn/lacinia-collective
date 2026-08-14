@@ -1,0 +1,63 @@
+name: Deploy to Pages
+
+# Publishes the app AND the commons to the same origin, so a device's sync
+# source is same-origin and no CORS configuration is needed anywhere. The
+# commons files live under public/, so `next build` copies them into the export
+# automatically — the site and the data it syncs from ship together.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deploy midway, but only one at a time. The aggregation job
+# commits to main and therefore triggers this — queueing keeps the newest
+# commons winning without two deploys racing to publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # No point publishing a build whose engines are broken.
+      - name: Verify engines
+        run: npm run verify
+
+      - name: Build static export
+        env:
+          # GitHub Pages serves project repos from /<repo>/. Without this every
+          # asset, the service worker and the PWA scope resolve to the origin
+          # root and 404.
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: npx next build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

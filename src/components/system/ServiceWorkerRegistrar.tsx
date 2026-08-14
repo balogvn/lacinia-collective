@@ -18,8 +18,13 @@ export function ServiceWorkerRegistrar() {
     if (typeof navigator === 'undefined') return
 
     if ('serviceWorker' in navigator) {
+      // Must match the deployed basePath. A worker registered at "/sw.js" on a
+      // subpath deployment 404s, and one registered with scope "/" is rejected
+      // outright — a worker may not claim a scope above its own directory. The
+      // app would then appear to work and silently have no offline mode.
+      const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
       navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
+        .register(`${base}/sw.js`, { scope: `${base}/` })
         .then((reg) => log.info('sync', 'service worker registered', { scope: reg.scope }))
         .catch((err) => log.warn('sync', 'service worker registration failed', { error: String(err) }))
     }

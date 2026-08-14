@@ -4,8 +4,20 @@
     {
       "name": "lacinia",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "lacinia-pages",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/preview-pages.mjs"
+      ],
+      "port": 4311,
+      "url": "http://localhost:4311"
     }
   ]
 }

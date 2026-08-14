@@ -385,7 +385,16 @@ async function main() {
     v: 1,
     id: contentId(new TextEncoder().encode(canonicalize(ops.map((o) => o.id)))),
     publisher: '',
-    createdAt: Date.now(),
+    // DETERMINISTIC, NOT Date.now(). The filename is a content address, which
+    // promises the file is immutable — and the transport layer caches it
+    // forever on that promise. A wall clock inside the body breaks it: two runs
+    // over identical ops would write DIFFERENT bytes to the SAME filename, so
+    // every device would keep serving whichever version it cached first.
+    //
+    // It also made the daily cron commit a diff even when nothing changed,
+    // filling main with noise forever. The snapshot is a compaction artifact,
+    // not a published-at claim; its ops each carry their own HLC.
+    createdAt: 0,
     opCount: ops.length,
     hlcMin: ops[0]?.hlc ?? '',
     hlcMax: ops[ops.length - 1]?.hlc ?? '',
@@ -403,7 +412,10 @@ async function main() {
 
   const manifest = {
     v: 1,
-    updatedAt: snapshot.createdAt,
+    // Also deterministic — see the note on snapshot.createdAt. Nothing reads
+    // this; devices detect change via the ETag on the manifest and the content
+    // address of the snapshot, both of which move only when content moves.
+    updatedAt: 0,
     entries: [
       {
         path: outName,

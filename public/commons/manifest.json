@@ -1,13 +1,13 @@
 {
   "v": 1,
-  "updatedAt": 1786722300039,
+  "updatedAt": 0,
   "entries": [
     {
       "path": "snapshot-4f53cda18c2baa0c.json",
       "id": "4f53cda18c2baa0c0354bb5f9a3ecbe5",
       "hlcMax": "",
       "opCount": 0,
-      "bytes": 142
+      "bytes": 130
     }
   ]
 }
