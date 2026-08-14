@@ -27,7 +27,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 314 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 319 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -704,7 +704,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - scoring is order-independent, so two offline devices agree without communicating
 - HLC ordering, merge, and extreme-skew absorption
 
-### `verify:sync` — 63 checks
+### `verify:sync` — 68 checks
 
 - canonical JSON refuses floats, NaN, Infinity and present-but-undefined keys
 - a listing signed by someone else, a relabelled `entityId`, a restamped HLC, an edited body and a
