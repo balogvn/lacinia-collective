@@ -115,6 +115,47 @@ More flags survives; fewer flags corroborated across the divide does not.
 
 ---
 
+## Limits
+
+Two things this build does not do. Both are decisions, not gaps, and both are shown to users on the
+identity page rather than only living here.
+
+### English only
+
+An earlier version tagged every listing, statement and identity with a language and offered a picker
+— English, Nigerian Pidgin, Hausa, Yorùbá, Igbo — but nothing translated and nothing filtered on it.
+The picker promised a capability that did not exist: someone posting in Hausa would reasonably
+expect Hausa speakers to find it, and nothing whatsoever would happen. A control that misleads is
+worse than an absent one, so the tags and pickers were removed rather than left as decoration.
+
+Name the cost plainly: **a commons built to bridge divides in a country with hundreds of languages
+currently speaks one of them.** A Hausa statement is invisible to a Yorùbá speaker in the same
+conversation, and the bridging analysis in `deliberate/` can only cluster opinions it can read. That
+undercuts the central claim more than anything else on this page.
+
+Records written by the earlier version still carry a `language` field. It is ignored, and it still
+verifies, because signatures cover the bytes as written.
+
+### No appeals process
+
+Moderation withholds; it never deletes, and there is no route to contest a withholding. That follows
+from having no server: an appeal needs an arbiter, an arbiter is an authority, and an authority is
+the thing this architecture exists without.
+
+What stands in for it is narrower and weaker, and worth being precise about:
+
+- **Cross-group corroboration** — one bloc alone cannot withhold anything, so the common abuse of an
+  appeals process is structurally unavailable in the first place
+- **Every withheld item stays one tap from being read**, with the reason attached
+- **Authors always see their own work**, and are told when others may not
+- **The reader can switch hiding off entirely** — the device is sovereign
+
+So a wrongly-withheld statement is recoverable by any individual reader, and never recoverable
+*collectively*. There is no mechanism to make the community see it again. Resolution stays where the
+design puts it: with the people who share the market.
+
+---
+
 ## The vouching handshake
 
 Joining requires meeting someone who already belongs. There is no invite link, because a link is a
@@ -619,7 +660,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 `npm run verify` — 136 checks across three suites, each an attack or a field failure.
 
-### `verify:protocol` — 59 checks
+### `verify:protocol` — 71 checks
 
 - codec round-trips at every length; UTF-8 truncation never splits a codepoint (Nigerian names make
   this the common case, not an edge case)
@@ -766,20 +807,8 @@ Bootstrapping stays out of band and must — the first anchor cannot be endorsed
 already trust. The app shows the human-checkable fingerprint and requires you to confirm you
 checked it against the poster, the broadcast, or the person.
 
-**Still outstanding:** nothing from the original roadmap. The honest remaining limits are the ones
-listed on the identity page: English only, and no appeals process.
-
-**Language: this build is English-only, by decision.** An earlier version tagged every listing,
-statement and identity with a language and offered a picker — English, Nigerian Pidgin, Hausa,
-Yorùbá, Igbo — but nothing translated and nothing filtered on it. The picker promised a capability
-that did not exist: someone posting in Hausa would reasonably expect Hausa speakers to find it, and
-nothing whatsoever would happen. A control that misleads is worse than an absent one, so the tags
-and pickers were removed rather than left as decoration.
-
-That is a real limitation and worth naming plainly: a commons meant to bridge divides in a country
-with hundreds of languages currently only speaks one of them. Records written by the earlier version
-still carry a `language` field — it is ignored, and it still verifies, because signatures cover the
-bytes as written.
+**Still outstanding:** nothing from the original roadmap. What remains are the two standing
+limits — English only, and no appeals process — described under [Limits](#limits).
 
 ---
 
