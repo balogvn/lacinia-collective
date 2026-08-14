@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
+import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useMarketplace } from '@/hooks/useMarketplace'
 import { BalanceCard } from './BalanceCard'
 import { ListingBoard } from './ListingBoard'
@@ -24,6 +25,13 @@ export function MarketWorkbench() {
         Opening local database…
       </p>
     )
+  }
+
+  // Locked: signing is impossible, so every action here would fail. Gate
+  // before the "create an identity" branch, which would otherwise invite
+  // overwriting a key that merely needs unlocking.
+  if (commons.locked) {
+    return <UnlockGate onUnlock={commons.unlock} />
   }
 
   if (!commons.identity || !commons.keyPair) {

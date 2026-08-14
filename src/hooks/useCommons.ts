@@ -28,6 +28,8 @@ import {
   saveRevocation,
 } from '@/lib/db/repo'
 import { applyRevocations, createRevocation } from '@/lib/moderate/revoke'
+import { sealSecret, openSecret } from '@/lib/crypto/vault'
+import { setSessionKey, getSessionKey } from '@/lib/crypto/session'
 import type { RevocationReason } from '@/lib/db/schema'
 import { computeTrustGraph, lookupTrust, type TrustGraph, type TrustNode } from '@/lib/vouch/trust'
 import { TrustTier, type TrustVoucher, type UserIdentity, type Locality } from '@/lib/db/schema'
@@ -45,6 +47,10 @@ export interface CommonsState {
   /** Twelve words, present until the user confirms they wrote them down. */
   recoveryPhrase: string | null
   phraseAcknowledged: boolean
+  /** True when a PIN is set and this session has not unlocked it yet. */
+  locked: boolean
+  /** True when a PIN is set at all, unlocked or not. */
+  hasPin: boolean
   error: string | null
 }
 
@@ -67,6 +73,8 @@ export function useCommons() {
     anchors: [],
     recoveryPhrase: null,
     phraseAcknowledged: true,
+    locked: false,
+    hasPin: false,
     error: null,
   })
 
@@ -96,7 +104,14 @@ export function useCommons() {
         } catch (err) {
           log.error('crypto', 'stored secret failed to load', { error: String(err) })
         }
+      } else if (vault?.sealed) {
+        // Sealed: the only usable key is whatever this session unlocked, held
+        // in memory. Nothing on disk can produce it.
+        keyPair = getSessionKey()
       }
+
+      const hasPin = !!vault?.sealed
+      const locked = hasPin && !keyPair
 
       // Every write now emits a signed op, so the repo needs a key before any
       // mutation. Installing it here — after the vault is read and on every
@@ -120,6 +135,8 @@ export function useCommons() {
         trust,
         anchors,
         recoveryPhrase: vault?.recoveryPhrase ?? null,
+        locked,
+        hasPin,
         // Default to true when there is no vault at all, so the gate only fires
         // for a real, un-acknowledged identity.
         phraseAcknowledged: vault ? vault.phraseAcknowledged : true,
@@ -203,6 +220,87 @@ export function useCommons() {
     [refresh],
   )
 
+  /**
+   * Seals the key under a PIN.
+   *
+   * CLEARING THE RECOVERY PHRASE IS THE WHOLE POINT, not tidying up. The phrase
+   * derives the key on its own, so leaving it in plaintext in the same
+   * IndexedDB row would mean an attacker never bothers with the ciphertext —
+   * they read the twelve words and walk. Sealing the key while leaving the
+   * phrase beside it protects nothing at all.
+   *
+   * The consequence is real and the UI states it: after this, the phrase exists
+   * only wherever the user wrote it down.
+   */
+  const setPin = useCallback(
+    async (pin: string) => {
+      const vault = await getVault()
+      if (!vault?.plainSecret) throw new Error('No unlocked key to protect.')
+
+      const keyPair = keyPairFromSecret(fromBase64Url(vault.plainSecret))
+      const sealed = await sealSecret(keyPair.secretKey, pin)
+
+      await saveVault({
+        id: 'self',
+        pubKey: vault.pubKey,
+        sealed,
+        phraseAcknowledged: vault.phraseAcknowledged,
+        createdAt: vault.createdAt,
+        // plainSecret and recoveryPhrase deliberately omitted — see above.
+      })
+
+      // Keep the user working; they just set the PIN, they should not be
+      // bounced to an unlock screen for it.
+      setSessionKey(keyPair)
+      await refresh()
+    },
+    [refresh],
+  )
+
+  const unlock = useCallback(
+    async (pin: string) => {
+      const vault = await getVault()
+      if (!vault?.sealed) throw new Error('This device has no PIN set.')
+      const secret = await openSecret(vault.sealed, pin)
+      setSessionKey(keyPairFromSecret(secret))
+      await refresh()
+    },
+    [refresh],
+  )
+
+  /**
+   * Removes the PIN, returning the key to plaintext at rest.
+   *
+   * The recovery phrase does NOT come back — it was destroyed when the PIN was
+   * set, and nothing on the device can reproduce it.
+   */
+  const removePin = useCallback(
+    async (pin: string) => {
+      const vault = await getVault()
+      if (!vault?.sealed) throw new Error('This device has no PIN set.')
+      // Re-derive from the PIN rather than trusting the session key, so this
+      // cannot be triggered by someone who wandered up to an unlocked screen.
+      const secret = await openSecret(vault.sealed, pin)
+      const keyPair = keyPairFromSecret(secret)
+
+      await saveVault({
+        id: 'self',
+        pubKey: vault.pubKey,
+        plainSecret: toBase64Url(secret),
+        phraseAcknowledged: vault.phraseAcknowledged,
+        createdAt: vault.createdAt,
+      })
+      setSessionKey(keyPair)
+      await refresh()
+    },
+    [refresh],
+  )
+
+  const lockNow = useCallback(async () => {
+    setSessionKey(null)
+    await refresh()
+  }, [refresh])
+
   /** Withdraw a vouch you gave. Only the issuer can, enforced in createRevocation. */
   const revokeVoucher = useCallback(
     async (voucher: TrustVoucher, reason: RevocationReason) => {
@@ -231,6 +329,10 @@ export function useCommons() {
     addAnchor,
     acknowledgePhrase,
     revokeVoucher,
+    setPin,
+    unlock,
+    removePin,
+    lockNow,
   }
 }
 

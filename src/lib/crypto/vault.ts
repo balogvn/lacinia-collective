@@ -23,14 +23,78 @@ import { log } from '../telemetry'
 import { CryptoError } from './keys'
 
 /**
- * A 6-digit PIN has 10^6 candidates, so iteration count is the only thing
- * standing between a stolen phone and the key. 310k is the OWASP floor for
- * PBKDF2-SHA256; it costs roughly 200–400ms on a low-end device, which is an
- * acceptable one-time unlock cost.
+ * 310k is the OWASP floor for PBKDF2-SHA256, costing roughly 200–400ms on a
+ * low-end device — an acceptable one-time unlock cost.
+ *
+ * BE CLEAR ABOUT WHAT THAT BUYS. An attacker does not type guesses into this
+ * app; they copy IndexedDB off the device and run the derivation offline on a
+ * GPU, where 310k iterations still permits on the order of tens of thousands of
+ * guesses per second. So no in-app throttle helps, and the only real variables
+ * are iteration count and how much entropy the user chose:
+ *
+ *     4 digits    10^4     seconds
+ *     6 digits    10^6     under a minute
+ *     8 digits    10^8     about an hour
+ *     6 letters   36^6     the better part of a day
+ *     a passphrase         out of reach
+ *
+ * That is why the minimum is 6 rather than 4, why `estimateStrength` reports
+ * honestly instead of showing a green bar, and why the UI pushes a passphrase.
+ * A PIN here defends against someone picking up your phone. It does not defend
+ * against someone who images it.
  */
 const PBKDF2_ITERATIONS = 310_000
 const SALT_BYTES = 16
 const IV_BYTES = 12
+
+/** Below this, the protection is close enough to none that offering it misleads. */
+export const MIN_PIN_LENGTH = 6
+
+export type VaultStrength = 'weak' | 'fair' | 'strong'
+
+export interface StrengthEstimate {
+  strength: VaultStrength
+  /** Plain-language, and deliberately unflattering where that is the truth. */
+  note: string
+}
+
+/**
+ * Honest strength estimate for a candidate PIN or passphrase.
+ *
+ * Deliberately pessimistic: it assumes an attacker who has the device and runs
+ * the derivation offline, which is the case the vault exists for.
+ */
+export function estimateStrength(pin: string): StrengthEstimate {
+  const digitsOnly = /^\d+$/.test(pin)
+  const hasLetters = /[a-z]/i.test(pin)
+  const hasSpace = /\s/.test(pin)
+
+  if (pin.length < MIN_PIN_LENGTH) {
+    return { strength: 'weak', note: `Needs at least ${MIN_PIN_LENGTH} characters.` }
+  }
+  if (digitsOnly && pin.length < 8) {
+    return {
+      strength: 'weak',
+      note: 'Digits only, and short. Someone who takes this phone could work it out within the hour.',
+    }
+  }
+  if (digitsOnly) {
+    return {
+      strength: 'fair',
+      note: 'Digits only. Fine against a borrowed phone; weak against someone determined.',
+    }
+  }
+  if (hasSpace && pin.length >= 12) {
+    return { strength: 'strong', note: 'A passphrase. This is the one that actually holds up.' }
+  }
+  if (hasLetters && pin.length >= 10) {
+    return { strength: 'strong', note: 'Long and mixed. Good.' }
+  }
+  return {
+    strength: 'fair',
+    note: 'Reasonable. A few words with spaces would be much harder to break.',
+  }
+}
 
 export interface SealedSecret {
   /** base64url ciphertext (AES-GCM, tag appended by WebCrypto). */
@@ -69,7 +133,9 @@ async function deriveKey(pin: string, salt: Uint8Array, iterations: number): Pro
 }
 
 export async function sealSecret(secretKey: Uint8Array, pin: string): Promise<SealedSecret> {
-  if (pin.length < 4) throw new CryptoError('PIN must be at least 4 characters.')
+  if (pin.length < MIN_PIN_LENGTH) {
+    throw new CryptoError(`PIN must be at least ${MIN_PIN_LENGTH} characters.`)
+  }
 
   const salt = randomBytes(SALT_BYTES)
   const iv = randomBytes(IV_BYTES)

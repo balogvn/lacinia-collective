@@ -10,6 +10,8 @@ import { IdentityCard } from './IdentityCard'
 import { VouchBench } from './VouchBench'
 import { VouchList } from './VouchList'
 import { AnchorPanel } from './AnchorPanel'
+import { VaultPanel } from './VaultPanel'
+import { UnlockGate } from './UnlockGate'
 import { SyncPanel } from '@/components/sync/SyncPanel'
 import { TrustTier } from '@/lib/db/schema'
 import { dumpTelemetry } from '@/lib/telemetry'
@@ -53,6 +55,13 @@ export function IdentityWorkbench() {
         </p>
       </div>
     )
+  }
+
+  // A locked device HAS an identity — it just cannot use it yet. Falling
+  // through to CreateIdentity here would invite someone to overwrite the very
+  // key they are trying to unlock.
+  if (commons.locked) {
+    return <UnlockGate onUnlock={commons.unlock} />
   }
 
   if (!commons.identity || !commons.keyPair) {
@@ -116,6 +125,14 @@ export function IdentityWorkbench() {
 
       <AnchorPanel anchors={commons.anchors} onChange={commons.refresh} />
 
+      <VaultPanel
+        hasPin={commons.hasPin}
+        phraseAcknowledged={commons.phraseAcknowledged}
+        onSetPin={commons.setPin}
+        onRemovePin={commons.removePin}
+        onLockNow={commons.lockNow}
+      />
+
       <VouchList
         vouchers={commons.vouchers}
         peers={commons.peers}
@@ -149,7 +166,6 @@ export function IdentityWorkbench() {
             <ul className="mt-3 space-y-2 font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper/45">
               <li>— English only. Nothing translates, so a statement in Hausa stays invisible to a Yorùbá speaker here</li>
               <li>— Anchor governance: each device decides its own anchors alone</li>
-              <li>— The PIN lock exists in code but is not wired to this screen</li>
               <li>— No appeals process. There is no server to arbitrate one</li>
             </ul>
           </div>

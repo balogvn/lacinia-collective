@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "verify:protocol": "tsx scripts/verify-protocol.ts",
+    "verify:protocol": "tsx scripts/verify-protocol.mts",
     "verify:sync": "tsx scripts/verify-sync.mts",
     "verify": "npm run verify:protocol && npm run verify:sync && npm run verify:ledger && npm run verify:deliberate && npm run verify:moderation && npm run verify:aggregator",
     "verify:aggregator": "tsx scripts/verify-aggregator.mts",

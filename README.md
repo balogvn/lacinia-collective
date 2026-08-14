@@ -27,7 +27,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 273 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 285 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -88,6 +88,7 @@ More flags survives; fewer flags corroborated across the divide does not.
 | Ed25519 identity, generated and held on-device | [`src/lib/crypto/keys.ts`](src/lib/crypto/keys.ts) |
 | Twelve-word BIP-39 recovery, no password anywhere | [`src/lib/crypto/keys.ts`](src/lib/crypto/keys.ts) |
 | Optional PIN lock (PBKDF2 + AES-GCM), opt-in | [`src/lib/crypto/vault.ts`](src/lib/crypto/vault.ts) |
+| Lock/unlock UI, session-only unlocked key | [`src/components/identity/VaultPanel.tsx`](src/components/identity/VaultPanel.tsx) |
 | Binary wire format signed as raw bytes | [`src/lib/codec.ts`](src/lib/codec.ts) |
 | Two-scan offline vouching handshake | [`src/lib/vouch/protocol.ts`](src/lib/vouch/protocol.ts) |
 | Sybil-resistant trust graph | [`src/lib/vouch/trust.ts`](src/lib/vouch/trust.ts) |
@@ -740,7 +741,7 @@ opinion clustering, bridge-finding, and a daily analysis pass on the CI compute 
 issuer-only vouch revocation.
 
 **Still outstanding:** anchor governance (how a community adds and removes anchors collectively,
-rather than each device deciding alone); and wiring the PIN vault to the UI.
+rather than each device deciding alone).
 
 **Language: this build is English-only, by decision.** An earlier version tagged every listing,
 statement and identity with a language and offered a picker — English, Nigerian Pidgin, Hausa,

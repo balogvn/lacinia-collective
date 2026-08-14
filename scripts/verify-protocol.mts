@@ -15,6 +15,7 @@ import {
   keyPairFromPhrase,
   isValidRecoveryPhrase,
   fingerprint,
+  keyPairFromSecret,
   sign,
   verify as edVerify,
   randomBytes,
@@ -27,6 +28,12 @@ import {
   ByteWriter,
   ByteReader,
 } from '../src/lib/codec'
+import {
+  sealSecret,
+  openSecret,
+  estimateStrength,
+  MIN_PIN_LENGTH,
+} from '../src/lib/crypto/vault'
 import { estimateQRVersion } from '../src/lib/qr/render'
 import {
   createVouchRequest,
@@ -485,6 +492,70 @@ section('6. Stored rows are not evidence')
     reverifyStoredVoucher({ ...stored, signedBytes: stored.signedBytes.slice(0, 40) }) ===
       VoucherStatus.Invalid,
   )
+}
+
+/* ─────────────────── 6b. the PIN vault ─────────────────── */
+
+section('6b. PIN vault — at-rest protection')
+{
+  const key = generateEphemeralKeyPair()
+
+  const sealed = await sealSecret(key.secretKey, 'correct horse')
+  check('sealing produces ciphertext, not the key', !sealed.ciphertext.includes(toBase64Url(key.secretKey)))
+  check('salt and iv are per-seal', (await sealSecret(key.secretKey, 'correct horse')).salt !== sealed.salt)
+  check('iteration count is recorded with the vault', sealed.iterations >= 310_000, `${sealed.iterations}`)
+
+  const opened = await openSecret(sealed, 'correct horse')
+  check(
+    'the right passphrase returns the exact key',
+    toBase64Url(opened) === toBase64Url(key.secretKey),
+  )
+  check(
+    'the recovered key derives the same identity',
+    keyPairFromSecret(opened).pubKeyId === key.pubKeyId,
+  )
+
+  let wrongRejected = false
+  try {
+    await openSecret(sealed, 'correct horsr')
+  } catch {
+    wrongRejected = true
+  }
+  check('a wrong passphrase is refused', wrongRejected)
+
+  // AES-GCM authenticates, so a flipped ciphertext byte must fail rather than
+  // return plausible-looking garbage that would be stored as a key.
+  let tamperRejected = false
+  try {
+    await openSecret({ ...sealed, ciphertext: 'A' + sealed.ciphertext.slice(1) }, 'correct horse')
+  } catch {
+    tamperRejected = true
+  }
+  check('tampered ciphertext is refused, not silently mis-decrypted', tamperRejected)
+
+  // Honouring the STORED iteration count matters: raising the constant in a
+  // future release must not brick every vault already on a device.
+  const legacy = { ...sealed, iterations: sealed.iterations }
+  check(
+    'stored iteration count is used on open',
+    toBase64Url(await openSecret(legacy, 'correct horse')) === toBase64Url(key.secretKey),
+  )
+
+  let shortRejected = false
+  try {
+    await sealSecret(key.secretKey, 'abc12')
+  } catch {
+    shortRejected = true
+  }
+  check(`a PIN under ${MIN_PIN_LENGTH} characters is refused`, shortRejected)
+
+  check('short input is reported weak', estimateStrength('12345').strength === 'weak')
+  check(
+    'six digits is not oversold as strong',
+    estimateStrength('123456').strength === 'weak',
+    estimateStrength('123456').note,
+  )
+  check('a passphrase is reported strong', estimateStrength('correct horse battery').strength === 'strong')
 }
 
 /* ─────────────────── 7. clock behaviour ─────────────────── */
