@@ -1,0 +1,4 @@
+Published commons files land here: manifest.json and a content-addressed
+snapshot-<id>.json, written by `npm run aggregate` and committed back by the
+daily GitHub Action. Kept in the repo so the directory exists before the first
+aggregation run.

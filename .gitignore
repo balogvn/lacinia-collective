@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+
+# Machine-specific permission grants. launch.json IS shared — it defines how
+# the dev server starts.
+.claude/settings.local.json
+
+# Inbox bundles ARE the submission mechanism (via pull request) — never ignore
+# them, and never ignore public/commons, which the aggregator commits back.

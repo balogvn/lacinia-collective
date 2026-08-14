@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-paper font-mono antialiased;
+    /* Overscroll on iOS reveals the page behind; keep it green, not white. */
+    overscroll-behavior: none;
+  }
+
+  ::selection {
+    background: #f1efe3;
+    color: #0b4a33;
+  }
+
+  /* Focus rings must survive on a green field — the default blue vanishes. */
+  :focus-visible {
+    outline: 2px solid #e4c87a;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .rule {
+    @apply border-paper/30;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-widest text-paper-dim;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 border border-paper/60 px-5 py-3
+           font-mono text-[11px] uppercase tracking-wider text-paper
+           transition-colors duration-150 hover:bg-paper hover:text-canvas
+           disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent
+           disabled:hover:text-paper;
+  }
+
+  .btn-solid {
+    @apply border-paper bg-paper text-canvas hover:bg-transparent hover:text-paper;
+  }
+
+  .field {
+    @apply w-full border border-paper/30 bg-canvas-deep px-4 py-3 font-mono text-sm
+           text-paper placeholder:text-paper/30 focus:border-paper/70 focus:outline-none;
+  }
+
+  /*
+   * A native <select> ignores the palette and renders system-light on macOS,
+   * which puts a white slab in the middle of a dark form. Strip the appearance
+   * and draw our own chevron.
+   */
+  select.field {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23F1EFE3' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-position: right 1rem center;
+    background-size: 0.7rem;
+  }
+
+  /* The option list is drawn by the OS; only its colours are ours to set. */
+  select.field option {
+    background-color: #083828;
+    color: #f1efe3;
+  }
+
+  /* The reference's terminal card: paper ground, green ink. */
+  .terminal {
+    @apply border border-paper bg-paper text-canvas;
+  }
+}
+
+@layer utilities {
+  /*
+   * Scanline texture over the display type, as in the reference. Pure CSS
+   * gradient — no image request, which matters when the whole point is that
+   * the app works on a 2G connection.
+   */
+  .scanlines {
+    position: relative;
+  }
+
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(11, 74, 51, 0.22) 0px,
+      rgba(11, 74, 51, 0.22) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  }
+
+  .display-tight {
+    line-height: 0.82;
+    letter-spacing: -0.015em;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}

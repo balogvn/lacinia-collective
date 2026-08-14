@@ -1,0 +1,44 @@
+{
+  "name": "lacinia-collective",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Lacinia Collective — an offline-first digital commons for Nigerian mutual aid, civic deliberation, and peer-vouched relational identity.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "verify:protocol": "tsx scripts/verify-protocol.ts",
+    "verify:sync": "tsx scripts/verify-sync.mts",
+    "verify": "npm run verify:protocol && npm run verify:sync && npm run verify:ledger && npm run verify:deliberate && npm run verify:moderation && npm run verify:aggregator",
+    "verify:aggregator": "tsx scripts/verify-aggregator.mts",
+    "aggregate": "node scripts/aggregate-bundles.mjs",
+    "verify:ledger": "tsx scripts/verify-ledger.mts",
+    "verify:deliberate": "tsx scripts/verify-deliberate.mts",
+    "analyse": "tsx scripts/analyse-deliberation.mts",
+    "verify:moderation": "tsx scripts/verify-moderation.mts"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.1.0",
+    "@noble/hashes": "^1.4.0",
+    "@scure/bip39": "^1.3.0",
+    "dexie": "^4.0.8",
+    "jsqr": "^1.4.0",
+    "next": "^16.3.1",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

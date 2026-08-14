@@ -1,0 +1,67 @@
+name: Aggregate commons
+
+# The free compute layer. GitHub Actions gives public repositories unlimited
+# minutes, so the daily merge/compaction job that would otherwise need a server
+# costs nothing — which is the whole reason the architecture has no server.
+on:
+  schedule:
+    # 03:00 UTC = 04:00 WAT, before the morning peak in Nigeria.
+    - cron: '0 3 * * *'
+  # Aggregate as soon as a bundle lands, not only on the daily tick.
+  push:
+    paths:
+      - 'commons/inbox/**'
+  workflow_dispatch:
+
+# Least privilege: the job writes the snapshot back to the repo and nothing else.
+permissions:
+  contents: write
+
+concurrency:
+  # Never run two aggregations at once — both would read the same snapshot and
+  # the second push would silently discard the first run's merged ops.
+  group: aggregate-commons
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # Only @noble/* is needed by the aggregator, but a lockfile install keeps
+      # CI reproducible and lets the verification suites run in the same job.
+      - run: npm ci
+
+      # If the engine is broken there is no point publishing a snapshot from it.
+      - name: Verify protocol and sync engines
+        run: npm run verify
+
+      - name: Aggregate and compact
+        run: npm run aggregate
+
+      # Opinion clustering over the merged commons. Advisory only — every
+      # device recomputes the same thing locally from its own view, using the
+      # very module this step imports.
+      - name: Analyse deliberation
+        run: npm run analyse
+
+      - name: Commit snapshot
+        run: |
+          git config user.name  'lacinia-aggregator'
+          git config user.email 'aggregator@users.noreply.github.com'
+          git add public/commons commons/inbox
+          if git diff --staged --quiet; then
+            echo 'No change to the commons.'
+            exit 0
+          fi
+          git commit -m "commons: aggregate $(date -u +%Y-%m-%d)"
+          # Rebase rather than force: a contributor's bundle landing mid-run
+          # must not be discarded.
+          git pull --rebase --autostash
+          git push

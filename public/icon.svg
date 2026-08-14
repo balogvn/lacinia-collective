@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lacinia">
+  <rect width="512" height="512" fill="#0B4A33"/>
+  <!--
+    A lacinia is the deep lobe of a leaf — a shape defined by its divisions.
+    The mark is one leaf cut into separate lobes that still share a spine:
+    distinct parts, common stem. Same idea as the trust graph.
+  -->
+  <g fill="none" stroke="#F1EFE3" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 400V150"/>
+    <path d="M256 236c-26-46-62-64-104-66 2 44 22 78 62 96 16 7 30 9 42 9z"/>
+    <path d="M256 236c26-46 62-64 104-66-2 44-22 78-62 96-16 7-30 9-42 9z"/>
+    <path d="M256 330c-22-38-52-53-86-55 2 36 18 65 52 80 13 6 25 7 34 7z"/>
+    <path d="M256 330c22-38 52-53 86-55-2 36-18 65-52 80-13 6-25 7-34 7z"/>
+    <path d="M256 150c-14-22-14-46 0-64 14 18 14 42 0 64z"/>
+  </g>
+</svg>
