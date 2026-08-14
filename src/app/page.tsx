@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { LiveTerminal } from '@/components/landing/LiveTerminal'
 
 const NAV = [
+  { label: 'How it works', href: '/guide' },
   { label: 'Identity', href: '/identity' },
   { label: 'Aid', href: '/aid' },
   { label: 'Deliberate', href: '/deliberate' },
@@ -59,8 +60,8 @@ export default function HomePage() {
           <Link href="/identity" className="btn btn-solid">
             Open the commons <span aria-hidden>→</span>
           </Link>
-          <Link href="/identity#how" className="btn">
-            How vouching works
+          <Link href="/guide" className="btn">
+            How it works
           </Link>
           <Link href="/identity#docs" className="btn">
             About

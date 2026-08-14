@@ -75,8 +75,16 @@ export function CreateIdentity({ onCreate, onRestore }: Props) {
         {mode === 'create' ? 'Join the commons' : 'Bring back your identity'}
       </h2>
       <p className="mt-2 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper-dim">
-        No email. No password. No phone number. A keypair is generated on this device and never
-        leaves it.
+        No email. No password. No phone number. Your phone makes a private stamp that only it
+        holds, and that stamp is your identity here.
+      </p>
+
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-paper/45">
+        New to this?{' '}
+        <a href="/guide" className="underline underline-offset-4 hover:text-paper">
+          Read the plain guide first
+        </a>
+        .
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -157,7 +165,7 @@ export function CreateIdentity({ onCreate, onRestore }: Props) {
         }
         className="btn btn-solid mt-6"
       >
-        {busy ? 'Generating…' : mode === 'create' ? 'Generate my keypair' : 'Restore identity'}
+        {busy ? 'Creating…' : mode === 'create' ? 'Create my stamp' : 'Restore identity'}
       </button>
     </section>
   )
