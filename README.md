@@ -40,6 +40,47 @@ Then add `http://localhost:3000/commons/` as a source in **Sync → Sources**.
 
 ---
 
+## Try the live demo
+
+**https://balogvn.github.io/lacinia-collective/**
+
+The app and its commons are served from the same origin, so the sync source is
+same-origin and needs no CORS anywhere.
+
+1. **Create an identity** at `/identity` — twelve words, no email, no password.
+2. **Add the demo commons** under *Sync → Sources*:
+
+   ```
+   https://balogvn.github.io/lacinia-collective/commons/
+   ```
+
+   Press **Sync now**. About 190 signed ops arrive: three identities, two
+   vouchers, four listings, and a 21-person deliberation.
+3. **Trust the demo anchor** under *Anchors → Manage*, or every score stays at
+   zero and the trust ladder looks broken. Anchors are the axioms of the graph
+   and are deliberately never shipped in the app — each device chooses its own:
+
+   ```
+   gWVqfrhfO_YWrXDFglNL2snYl6Tb6drT7md7BO70qF8
+   ```
+
+   Fingerprint `FHMM-XV88-8TRN`. Paste the key, then reopen `/identity`.
+
+Then `/deliberate` shows the moderation layer doing the thing it exists for:
+
+| Statement | Flags | Outcome |
+|---|---|---|
+| "The lock-up owners decide everything among themselves" | **14**, all from one bloc | **Visible** |
+| "The lock-up crowd are thieves…" | **10**, from both blocs | **Withheld** |
+
+More flags survives; fewer flags corroborated across the divide does not.
+
+> The demo data is synthetic — generated keys, invented traders, an invented
+> market levy. The abusive statement exists solely so the moderation layer has
+> something real to catch.
+
+---
+
 ## What exists today
 
 | Capability | Where |

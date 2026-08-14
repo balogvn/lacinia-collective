@@ -1,4 +1,411 @@
 {
   "v": 1,
-  "conversations": {}
+  "conversations": {
+    "20d3cd5430d333b3f1d6b595e6fbabaf": {
+      "title": "The market levy",
+      "map": {
+        "status": "ok",
+        "participants": [
+          {
+            "pubKey": "0ALfhw26gBYEGSenUJVughbkMuQ2ndh7QN8xxqqjtVk",
+            "x": -1.569899,
+            "y": -0.686937,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "0nVOTNe5jumQ7ELqA2CN-rTMBgQyONa9F-EHQrLncL8",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "3LdJjpNm43w3zHLk1f4gbJ7Yzrz0Pr3m2jyLBk1cGlM",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "4SbZfArPmOQ3v0dJL14kVjE8ayDGS-yJ9QGISRjo7Nc",
+            "x": -0.517319,
+            "y": -1.71718,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "6KQqJORo5mKQ-m3Zq6AGguT7MA4yKCLtle4csws0OKo",
+            "x": -1.743957,
+            "y": 0.29393,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "8gNBlczFulYvsiiQPbqNpsmyS9BKaCjv4JOba2oI6uc",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "9-MulM-diSrBtf95EUXLi3PeE2jKhCV2A5faK426OBI",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "AAPDmiJcjoI8G4-Dv7Ob55aKiQPwZD9weTW70LGwlds",
+            "x": -1.386864,
+            "y": 1.546897,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "BKwkSrnnG7ONv-hNQkvbygMitvFCdw85t-LTkFiMVqI",
+            "x": -0.691419,
+            "y": -1.580711,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "HRJ69XgpDmunr5SA98SBaj63oiuNf_alC8915BGzqEQ",
+            "x": -2.100454,
+            "y": 0.319514,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "IEMnSnV5CUC23LAv_3RO37idQSNhCjN0tUZvoZ1D7HM",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "KMMI9Pqy4E5QmCRWTgdR4FNxmu7PvBna4xhwuicYgL4",
+            "x": -0.517319,
+            "y": -1.71718,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "Vw7NZup3EcAmG6bkTUK3QkcTVXhCTOFvWp3TuAdYBoY",
+            "x": -1.743957,
+            "y": 0.29393,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "XuhNKxmoCj2sYHZ8AASB53pVxF8seQGUM5wAId7oTn8",
+            "x": -1.560965,
+            "y": 1.683367,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "_AbGU0dYH08z9W8dvrUzu-2NbZQpFvCMX2AERAw99Ns",
+            "x": -1.917462,
+            "y": 1.708951,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "aYyMWouHN-j4zq6s-kFoPC3gKSVlaL-GaHY_cMwcoLY",
+            "x": -0.160822,
+            "y": -1.742765,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "cPMHH01anrYK41-l6mP7BVdTSRVspbOlEAG_mgQgIMc",
+            "x": -2.274555,
+            "y": 0.455984,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "e0bNgyy_bH9QSy8kF6YNBAGbuy-YOi8GbKiR6iRuVP8",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "j-dGrPB9srMrJwXwU4fBU_2YhrmXbASuv_bvcP7p08g",
+            "x": 0.552769,
+            "y": -0.515382,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "pxCii1i0RQmUDtxBbVEPCnnN2L5dY5k0AlSfXTlt4B4",
+            "x": -1.569899,
+            "y": -0.686937,
+            "group": 1,
+            "votesCast": 7
+          },
+          {
+            "pubKey": "yD4Rti8JojT1_NtVN8_tgyrK0aBPmhK1QuxEDZCA6i8",
+            "x": 2.457446,
+            "y": 0.334931,
+            "group": 0,
+            "votesCast": 7
+          }
+        ],
+        "groups": [
+          {
+            "id": 0,
+            "size": 7,
+            "centroid": {
+              "x": 2.457446,
+              "y": 0.334931
+            },
+            "distinctive": [
+              {
+                "statementId": "52d7a21162591a4d2b7658f54e86e3cd",
+                "agree": 0.8889,
+                "gap": 0.8264
+              },
+              {
+                "statementId": "d74341a6cf82f2c3e921a3b399e9ab4f",
+                "agree": 0.8889,
+                "gap": 0.5764
+              },
+              {
+                "statementId": "613ae3be2de77e583522881989c981d3",
+                "agree": 0.8889,
+                "gap": 0.3264
+              }
+            ]
+          },
+          {
+            "id": 1,
+            "size": 14,
+            "centroid": {
+              "x": -1.228723,
+              "y": -0.167466
+            },
+            "distinctive": [
+              {
+                "statementId": "f9513b8c324c6d8712ee89207cc4089c",
+                "agree": 0.9375,
+                "gap": 0.8264
+              },
+              {
+                "statementId": "a0296c6e5aa4c09a5fa2d53f308b254f",
+                "agree": 0.625,
+                "gap": 0.5139
+              },
+              {
+                "statementId": "35b8dbd8f5d4df9c80c084977f7f8f88",
+                "agree": 0.5,
+                "gap": 0.3889
+              }
+            ]
+          }
+        ],
+        "statements": [
+          {
+            "statementId": "35b8dbd8f5d4df9c80c084977f7f8f88",
+            "agrees": 7,
+            "disagrees": 14,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.3333,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.1111,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.5,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.1111,
+            "divisiveness": 0.3889
+          },
+          {
+            "statementId": "52d7a21162591a4d2b7658f54e86e3cd",
+            "agrees": 7,
+            "disagrees": 14,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.3333,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.8889,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.0625,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.0625,
+            "divisiveness": 0.8264
+          },
+          {
+            "statementId": "613ae3be2de77e583522881989c981d3",
+            "agrees": 15,
+            "disagrees": 6,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.7143,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.8889,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.5625,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.5625,
+            "divisiveness": 0.3264
+          },
+          {
+            "statementId": "9c5fa026e9f0c14ac1767e38abab044c",
+            "agrees": 16,
+            "disagrees": 5,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.7619,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.8889,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.625,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.625,
+            "divisiveness": 0.2639
+          },
+          {
+            "statementId": "a0296c6e5aa4c09a5fa2d53f308b254f",
+            "agrees": 9,
+            "disagrees": 12,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.4286,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.1111,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.625,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.1111,
+            "divisiveness": 0.5139
+          },
+          {
+            "statementId": "d74341a6cf82f2c3e921a3b399e9ab4f",
+            "agrees": 11,
+            "disagrees": 10,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.5238,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.8889,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.3125,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.3125,
+            "divisiveness": 0.5764
+          },
+          {
+            "statementId": "f912e7c885470d83196fb65522c2dcfc",
+            "agrees": 0,
+            "disagrees": 0,
+            "passes": 0,
+            "totalVotes": 0,
+            "overallAgree": 0,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.5,
+                "votes": 0
+              },
+              {
+                "group": 1,
+                "agree": 0.5,
+                "votes": 0
+              }
+            ],
+            "consensus": 0,
+            "divisiveness": 0
+          },
+          {
+            "statementId": "f9513b8c324c6d8712ee89207cc4089c",
+            "agrees": 14,
+            "disagrees": 7,
+            "passes": 0,
+            "totalVotes": 21,
+            "overallAgree": 0.6667,
+            "byGroup": [
+              {
+                "group": 0,
+                "agree": 0.1111,
+                "votes": 7
+              },
+              {
+                "group": 1,
+                "agree": 0.9375,
+                "votes": 14
+              }
+            ],
+            "consensus": 0.1111,
+            "divisiveness": 0.8264
+          }
+        ],
+        "k": 2,
+        "strength": 0.6441,
+        "silhouette": 0.6656
+      },
+      "bridging": [
+        "9c5fa026e9f0c14ac1767e38abab044c",
+        "613ae3be2de77e583522881989c981d3",
+        "d74341a6cf82f2c3e921a3b399e9ab4f",
+        "35b8dbd8f5d4df9c80c084977f7f8f88",
+        "a0296c6e5aa4c09a5fa2d53f308b254f",
+        "f9513b8c324c6d8712ee89207cc4089c",
+        "52d7a21162591a4d2b7658f54e86e3cd"
+      ],
+      "divisive": [
+        "52d7a21162591a4d2b7658f54e86e3cd",
+        "f9513b8c324c6d8712ee89207cc4089c",
+        "d74341a6cf82f2c3e921a3b399e9ab4f",
+        "a0296c6e5aa4c09a5fa2d53f308b254f",
+        "35b8dbd8f5d4df9c80c084977f7f8f88",
+        "613ae3be2de77e583522881989c981d3",
+        "9c5fa026e9f0c14ac1767e38abab044c"
+      ]
+    }
+  }
 }

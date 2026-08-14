@@ -180,7 +180,12 @@ for (const voter of blocA) raiseFlag(voter, blocBTribal, FlagReason.Abuse)
 
 // CAMPAIGN 2 — GENUINE ABUSE. A statement both blocs independently object to.
 // Roughly a third of each group flags it, nobody coordinating.
-const abusiveText = 'The traders from the north end are thieves and should be driven out'
+// Deliberately abusive — it exists to be caught by the moderation layer, and
+// the demo is worthless if the only flagged statement is one nobody would
+// actually flag. Phrased as an attack on the rival stall block within this
+// fictional market, not on any real group: this ships on a public site, and
+// synthetic test data has a way of being read out of context.
+const abusiveText = 'The lock-up crowd are thieves and should be thrown out of the market'
 const abusiveCreatedAt = CREATED + 999_000
 const abusiveId = statementIdFor(blocA[9]!.pubKeyId, conversationId, abusiveText, abusiveCreatedAt)
 {
