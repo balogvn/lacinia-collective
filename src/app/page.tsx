@@ -35,8 +35,8 @@ export default function HomePage() {
             Lacinia<span className="text-paper-dim">.collective</span>
           </Link>
 
-          <Link href="/identity" className="btn ml-auto">
-            Create identity
+          <Link href="/aid" className="btn ml-auto">
+            Open the commons
           </Link>
         </nav>
       </header>
@@ -57,7 +57,13 @@ export default function HomePage() {
         </h1>
 
         <div className="mt-10 flex flex-wrap items-center gap-3">
-          <Link href="/identity" className="btn btn-solid">
+          {/*
+            Points at the commons, not at /identity. Reading needs no key —
+            runSync() has never taken one — so sending a first-time visitor to
+            make a keypair put a ceremony in front of the thing they came to
+            look at. The commons page offers the one tap that fills it.
+          */}
+          <Link href="/aid" className="btn btn-solid">
             Open the commons <span aria-hidden>→</span>
           </Link>
           <Link href="/guide" className="btn">
@@ -70,9 +76,9 @@ export default function HomePage() {
 
         <div className="mt-16 grid gap-10 lg:mt-24 lg:grid-cols-2 lg:items-end lg:gap-16">
           <p className="max-w-xl font-mono text-[13px] uppercase leading-relaxed tracking-wider text-paper-dim">
-            Lacinia runs entirely on your phone. Build an identity with no email and no password,
-            earn standing from neighbours you meet in person, and trade help in time credits — with
-            the network off.
+            Lacinia runs entirely on your phone. Look around with nothing at all — no email, no
+            password, no account. Make a stamp when you want to post or vouch, earn standing from
+            neighbours you meet in person, and trade help in time credits, with the network off.
           </p>
 
           <div className="lg:justify-self-end lg:w-full lg:max-w-[620px]">

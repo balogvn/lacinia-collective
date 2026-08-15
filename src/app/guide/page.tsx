@@ -138,10 +138,25 @@ export default function GuidePage() {
         {/* ── getting started ── */}
         <h2 className="mt-14 font-display text-3xl uppercase text-paper">Getting started</h2>
         <ol className="mt-6 space-y-8">
-          <Step n="1" title="Make your stamp">
+          <Step n="1" title="Look around first">
             <p>
-              Open <Link href="/identity" className="underline underline-offset-4">Identity</Link>{' '}
-              and put in the name people know you by. Your phone does the rest in a second.
+              Open <Link href="/aid" className="underline underline-offset-4">Mutual aid</Link> and
+              tap <em>Add the commons this app came with</em>. That is one tap and it needs nothing
+              from you — no name, no number, no account.
+            </p>
+            <p>
+              A commons is just a shared noticeboard: the offers, requests and conversations for an
+              area. What arrives is checked on your phone against the signature of whoever wrote it,
+              stays on your phone, and works offline from then on.
+            </p>
+          </Step>
+
+          <Step n="2" title="Make your stamp when you want to join in">
+            <p>
+              Reading needs nothing. Posting, voting and agreeing an exchange are signed by you, so
+              those need a stamp of your own. Open{' '}
+              <Link href="/identity" className="underline underline-offset-4">Identity</Link> and
+              put in the name people know you by; your phone does the rest in a second.
             </p>
             <p>
               Write down the twelve words before you carry on. This is the one part that cannot be
@@ -149,7 +164,7 @@ export default function GuidePage() {
             </p>
           </Step>
 
-          <Step n="2" title="Get someone to introduce you">
+          <Step n="3" title="Get someone to introduce you">
             <p>
               Find someone already using it. On your phone tap <em>Show my code</em>; they tap{' '}
               <em>Vouch for someone</em> and point their camera at your screen. They choose how well
@@ -162,17 +177,6 @@ export default function GuidePage() {
             </p>
           </Step>
 
-          <Step n="3" title="Join a commons">
-            <p>
-              A commons is just a shared noticeboard — the offers, requests and conversations for
-              your area. Under <em>Sync</em>, add its address once, and press sync whenever you have
-              signal. Everything you collect stays on your phone and works offline afterwards.
-            </p>
-            <p>
-              You can also swap updates straight with someone next to you, with no internet at all,
-              by holding your phones up to each other.
-            </p>
-          </Step>
         </ol>
 
         {/* ── what you can do ── */}
