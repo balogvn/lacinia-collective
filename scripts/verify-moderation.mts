@@ -15,7 +15,7 @@
  *   npm run verify:moderation
  */
 
-import { createFlag, verifyFlag, flagIdFor, flagWeight, FLAG_TIER_WEIGHT } from '../src/lib/moderate/flag'
+import { createFlag, verifyFlag, flagIdFor, flagWeight, dedupeFlags, FLAG_TIER_WEIGHT } from '../src/lib/moderate/flag'
 import { buildPolicy, Visibility, isHidden, type PolicyPreset } from '../src/lib/moderate/policy'
 import {
   createRevocation,
@@ -125,6 +125,86 @@ section('1. Flags are signed claims, not anonymous reports')
     'a flag signature cannot be replayed as a revocation',
     !verifyRevocation({ ...revocation, signature: f.signature, signedBytes: f.signedBytes }),
     'domain is inside the signed document',
+  )
+}
+
+/* ─────────────────── 1b. THE DUPLICATE-FLAG AMPLIFIER ─────────────────── */
+
+section('1b. One person cannot become a crowd by flagging twice')
+{
+  // A flag's id is the content address of its signed bytes, and those bytes
+  // include `reason` and `createdAt`. So re-flagging the same item does NOT
+  // update the first flag — it mints a second, equally valid one. Every count
+  // downstream then reads one person as several.
+  const attacker = blocA[0]!
+  // Explicit timestamps: created back to back, both land in the same
+  // millisecond and "most recent" stops being well defined — which the suite
+  // caught by failing intermittently.
+  const at = (reason: FlagReason, now: number): Flag => ({
+    ...createFlag(attacker, { targetId: TARGET_B, targetEntity: 'statement', reason, conversationId: 'conv-1', now }),
+    hlc: hlcNow(clock),
+  })
+  const once = at(FlagReason.Abuse, 1_000)
+  const again = at(FlagReason.Spam, 2_000)
+
+  check(
+    'changing your mind mints a second valid flag, it does not update the first',
+    once.id !== again.id && verifyFlag(once) && verifyFlag(again),
+  )
+
+  check(
+    'both are the same person objecting to the same thing',
+    once.authorPub === again.authorPub && once.targetId === again.targetId,
+  )
+
+  check('deduplication keeps exactly one', dedupeFlags([once, again]).length === 1)
+  check(
+    '…and it is the most recent objection',
+    dedupeFlags([once, again])[0]!.reason === FlagReason.Spam,
+  )
+  check(
+    'two devices holding the same pair agree on which survives',
+    dedupeFlags([once, again])[0]!.id === dedupeFlags([again, once])[0]!.id,
+  )
+  check(
+    'different people are never collapsed',
+    dedupeFlags([once, flag(blocA[1]!, TARGET_B, FlagReason.Abuse)]).length === 2,
+  )
+  check(
+    'the same person flagging DIFFERENT things is not collapsed',
+    dedupeFlags([once, flag(attacker, 'some-other-target', FlagReason.Abuse)]).length === 2,
+  )
+
+  // The amplification itself. flagWeight dilutes by sqrt(outgoing/quota), so N
+  // duplicates contribute W·sqrt(N·quota) — linear count against a square-root
+  // penalty. Undeduplicated, a single Observer key reached an Anchor's weight.
+  const spam = Array.from({ length: 60 }, (_, i) =>
+    at(i % 2 ? FlagReason.Abuse : FlagReason.Spam, 10_000 + i),
+  )
+  check(
+    'sixty duplicate flags from one key collapse to one objection',
+    dedupeFlags(spam).length === 1,
+    `${spam.length} rows → ${dedupeFlags(spam).length}`,
+  )
+
+  // And end to end: the whole campaign must not be able to withhold anything,
+  // because it is one person and corroboration needs more than one group.
+  const verdict = buildPolicy({
+    selfPub: blocB[4]!.pubKeyId,
+    flags: spam,
+    tierOf: flatTier,
+    participants,
+  })(TARGET_B, AUTHOR_B)
+
+  check(
+    'a sixty-flag campaign by one person hides nothing',
+    verdict.visibility === Visibility.Visible,
+    `${spam.length} flags → ${verdict.visibility}`,
+  )
+  check(
+    'and it is counted as the single objection it is',
+    verdict.flagCount === 1,
+    `flagCount ${verdict.flagCount}`,
   )
 }
 

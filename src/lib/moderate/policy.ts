@@ -43,7 +43,7 @@ import {
   type Flag,
   type PubKeyId,
 } from '../db/schema'
-import { flagWeight, FLAG_TIER_WEIGHT, countOutgoingFlags, verifyFlag } from './flag'
+import { flagWeight, FLAG_TIER_WEIGHT, countOutgoingFlags, dedupeFlags, verifyFlag } from './flag'
 import type { ParticipantPoint } from '../deliberate/cluster'
 import { log } from '../telemetry'
 
@@ -143,7 +143,10 @@ export function buildPolicy(input: PolicyInput) {
 
   // Only verified flags count. An unverified flag in our own table is either
   // corrupt or planted, and either way must not influence what we hide.
-  const valid = input.flags.filter((f) => !f.deleted && verifyFlag(f))
+  // Deduplicated BEFORE anything counts, because re-flagging produces a second
+  // valid row and every count below would otherwise read one person as several.
+  // See dedupeFlags — unchecked, this is a censorship amplifier, not a nit.
+  const valid = dedupeFlags(input.flags.filter((f) => !f.deleted && verifyFlag(f)))
   if (valid.length !== input.flags.filter((f) => !f.deleted).length) {
     log.warn('trust', 'discarded flags that failed verification', {
       discarded: input.flags.filter((f) => !f.deleted).length - valid.length,

@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 486 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 496 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -697,6 +697,27 @@ hiding costs more than wrongly showing.
 - Your own flag mutes an item for you alone, needing no corroboration — it censors nobody but you.
 - The reader can turn hiding off entirely. The device is sovereign.
 
+### One person, one objection
+
+A flag's id is the content address of its signed bytes, and those bytes include the reason and the
+timestamp — so re-flagging an item does not update your flag, it mints a second valid one. Every
+count downstream then read one person as several: `flagCount` reported 60 where one person had
+objected 60 times, and the weight sums behind corroboration counted them 60 times over.
+
+`dedupeFlags` collapses to one objection per person per target, keeping their most recent, with a
+deterministic tiebreak so two devices holding the same pair agree on which survives. It runs before
+anything counts. Deduplicating on read rather than on write is deliberate: duplicates also arrive
+over sync from devices whose behaviour we do not control, and every one of them carries a valid
+signature.
+
+Worth stating what this was and was not. The arithmetic looked alarming — `flagWeight` dilutes by
+`sqrt(outgoing/quota)`, so N duplicates contribute `W · sqrt(N · quota)`, a linear count against a
+square-root penalty, and on paper a fresh Observer key reached an Anchor's weight at 50 duplicates.
+It did not translate into censorship power, because both decision paths already gate on *distinct
+people*: cross-group corroboration needs every group to object, and the ungrouped fallback counts
+distinct authors. Two hundred duplicates from one key still withheld nothing. The damage was a
+displayed number that lied and weight sums that were wrong, not a way to bury a statement.
+
 ### Sybil resistance
 
 Flag weight scales with trust tier (an Observer's flag is worth 0.15 of a Steward's), and flagging
@@ -772,7 +793,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 486 checks across ten suites, each an attack or a field failure.
+`npm run verify` — 496 checks across ten suites, each an attack or a field failure.
 
 ### `verify:protocol` — 95 checks
 
@@ -828,7 +849,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - overwriting someone else's vote row is refused; changing your mind updates rather than
   double-counts; out-of-range vote values are refused
 
-### `verify:moderation` — 44 checks
+### `verify:moderation` — 54 checks
 
 - **a unanimous 12-person bloc campaign does NOT hide a rival bloc's statement** — and the rule is
   symmetric in both directions

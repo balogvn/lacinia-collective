@@ -99,6 +99,46 @@ export function verifyFlag(flag: Flag): boolean {
 }
 
 /**
+ * One objection per person per target, keeping their most recent.
+ *
+ * THE ATTACK THIS CLOSES
+ * A flag's id is the content address of its signed bytes, and those bytes
+ * include `reason` and `createdAt` — so re-flagging the same item produces a
+ * SECOND valid row rather than updating the first. Every downstream count then
+ * treated one person as several.
+ *
+ * That was not merely untidy, it was an amplifier. `flagWeight` dilutes by
+ * sqrt(outgoing/quota), so N duplicate flags on one target contribute
+ * N · W/sqrt(N/quota) = W · sqrt(N · quota) — growing without bound while the
+ * penalty grows only as its square root. A brand-new Observer key posting 50
+ * duplicates on one statement reached the weight of a full Anchor; 200 reached
+ * twice that. The dilution was designed to stop someone flagging MANY things,
+ * and did nothing about someone flagging ONE thing many times.
+ *
+ * Deduplicating on read rather than on write is deliberate: duplicates also
+ * arrive over sync, from devices whose behaviour we do not control, and the
+ * signature on each is perfectly valid. The fix has to live where the counting
+ * happens.
+ */
+export function dedupeFlags(flags: readonly Flag[]): Flag[] {
+  const newest = new Map<string, Flag>()
+  for (const flag of flags) {
+    const key = `${flag.authorPub}|${flag.targetId}`
+    const held = newest.get(key)
+    if (
+      !held ||
+      flag.createdAt > held.createdAt ||
+      // Deterministic tiebreak: two devices holding the same pair must agree
+      // on which survives, or they withhold different things.
+      (flag.createdAt === held.createdAt && flag.id > held.id)
+    ) {
+      newest.set(key, flag)
+    }
+  }
+  return [...newest.values()].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+}
+
+/**
  * Weight of one flag, after the capacity constraint.
  *
  * Flagging everything you dislike dilutes every flag you have ever raised —
