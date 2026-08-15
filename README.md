@@ -993,7 +993,8 @@ wants to act rather than at the door. The prompt names one action per state and 
 standing that does not exist.
 
 **Still outstanding:** nothing from the original roadmap. What remains are the two standing
-limits — English only, and no appeals process — described under [Limits](#limits).
+limits described under [Limits](#limits): translation depends on a bilingual neighbour turning up,
+and there is no appeals process.
 
 ---
 
