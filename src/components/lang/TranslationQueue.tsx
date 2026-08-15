@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import { LANGUAGES, languageName } from '@/lib/lang/languages'
 import { needsTranslation, translatableBy } from '@/lib/lang/translation'
+import Link from 'next/link'
 import type { Statement, Translation } from '@/lib/db/schema'
 
 interface Props {
@@ -63,6 +64,13 @@ export function TranslationQueue({
   }
 
   const tagged = statements.filter((s) => s.lang).length
+
+  // Your own renderings, shown here rather than on the voting card: this is
+  // where work is counted, and the vote queue deliberately carries no names.
+  const here = new Set(statements.map((s) => s.id))
+  const mine = translations.filter(
+    (t) => !t.deleted && t.translatorPub === selfPub && here.has(t.targetId),
+  )
 
   return (
     <section className="border border-paper/30">
@@ -126,7 +134,7 @@ export function TranslationQueue({
               ? tagged === 0
                 ? 'Nobody has said what language they wrote in yet, so there is nothing to go on.'
                 : 'You have rendered everything here that you can read.'
-              : 'You can read these and have not rendered them. This is work — someone can settle it with you in time credits.'}
+              : 'You can read these and have not rendered them. If someone asked you to, it is work like any other hour and can be settled in time credits.'}
           </p>
           {work.length > 0 ? (
             <ul className="mt-3 space-y-2">
@@ -144,6 +152,27 @@ export function TranslationQueue({
           ) : null}
         </div>
       </div>
+
+      {mine.length > 0 ? (
+        <div className="border-t border-paper/25 p-5">
+          <p className="font-mono text-[10px] uppercase tracking-wider text-paper/40">
+            You have rendered {mine.length} here
+          </p>
+          {/*
+            An hour of translation is an hour. Settlement is the ordinary
+            two-signature handshake — you propose, they confirm — so this points
+            at it rather than inventing a second way to be paid. It is a link,
+            not a promise: nothing is owed until someone agrees it is.
+          */}
+          <p className="mt-2 max-w-2xl font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper-dim">
+            If someone asked you for this, it is work like any other and you can ask them to settle
+            it. They have to agree — nothing is owed until they sign it too.
+          </p>
+          <Link href="/aid#settle" className="btn mt-3">
+            Ask to be paid for it →
+          </Link>
+        </div>
+      ) : null}
     </section>
   )
 }

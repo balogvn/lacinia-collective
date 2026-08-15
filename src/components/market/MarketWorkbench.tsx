@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
@@ -21,6 +21,22 @@ export function MarketWorkbench() {
   const [settling, setSettling] = useState<ResourceListing | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
   const firstRun = useFirstRun(!!commons.identity)
+
+  /*
+    Opened by /aid#settle, which is where the translation queue sends someone
+    who wants to be paid for a rendering. A link that landed on this page and
+    left them to find the bench themselves would be the same broken promise the
+    copy over there used to make.
+  */
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const open = () => {
+      if (window.location.hash === '#settle') setBenchOpen(true)
+    }
+    open()
+    window.addEventListener('hashchange', open)
+    return () => window.removeEventListener('hashchange', open)
+  }, [])
 
   if (!commons.ready || !market.ready) {
     return (

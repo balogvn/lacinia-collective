@@ -1027,7 +1027,12 @@ happening. The queue shows two counts that are easy to conflate and are opposite
 (written in a language you do not read, not yet rendered into one you do) and what **you could open
 for someone** (you can read it and have not rendered it). Adding a language to what you read moves
 an item from the first to the second. Reader languages are local, never published, and filter
-nothing. **Not yet surfaced:** translations on listings.
+nothing.
+
+Payment is the ordinary two-signature settlement, not a second mechanism: the person who did the
+work proposes and the other confirms, so a rendering is settled exactly like an hour of any other
+help. The queue counts what you have rendered and links to the bench; nothing is owed until both
+people sign. **Not yet surfaced:** translations on listings.
 
 **Still outstanding:** nothing from the original roadmap. What remains are the two standing
 limits described under [Limits](#limits): translation depends on a bilingual neighbour turning up,

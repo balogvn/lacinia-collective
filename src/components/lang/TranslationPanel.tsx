@@ -144,8 +144,9 @@ export function TranslationPanel({
               </button>
             </div>
             <p className="font-mono text-[9px] uppercase leading-relaxed tracking-wider text-paper/35">
-              Signed by you and published beside the original, which is never replaced. This is work
-              — someone can settle it with you in time credits like any other hour.
+              Signed by you and published beside the original, which is never replaced. If someone
+              asked you for it, it is an hour like any other and can be settled under Mutual aid —
+              they have to agree to it, the same as any exchange here.
             </p>
           </div>
         ) : (
