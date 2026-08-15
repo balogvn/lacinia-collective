@@ -6,7 +6,7 @@ const NAV = [
   { label: 'Identity', href: '/identity' },
   { label: 'Aid', href: '/aid' },
   { label: 'Deliberate', href: '/deliberate' },
-  { label: 'Docs', href: '/identity#docs' },
+  { label: 'About', href: '/about' },
 ]
 
 export default function HomePage() {
@@ -69,7 +69,7 @@ export default function HomePage() {
           <Link href="/guide" className="btn">
             How it works
           </Link>
-          <Link href="/identity#docs" className="btn">
+          <Link href="/about" className="btn">
             About
           </Link>
         </div>

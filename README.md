@@ -939,7 +939,7 @@ their own device.
 
 ```
 src/
-├── app/                     routes (landing, identity, aid, deliberate, guide, join)
+├── app/                     routes (landing, about, identity, aid, deliberate, guide, join)
 ├── components/
 │   ├── identity/            workbench, vouch bench, anchors, recovery phrase
 │   ├── market/              balance, listings, settlement bench, history
