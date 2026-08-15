@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { FrameBroadcaster } from './FrameBroadcaster'
+import { InvitePanel } from './InvitePanel'
 import { FrameReceiver } from './FrameReceiver'
 import {
   buildOutboundBundle,
@@ -20,12 +21,14 @@ import {
   unsyncedOps,
   getPullState,
 } from '@/lib/db/repo'
-import type { SyncSourceRecord } from '@/lib/db/schema'
+import type { PubKeyId, SyncSourceRecord } from '@/lib/db/schema'
 import type { KeyPair } from '@/lib/crypto/keys'
 import { log } from '@/lib/telemetry'
 
 interface Props {
   keyPair: KeyPair
+  /** Offered inside an invite, so the recipient does not land on an all-zero commons. */
+  anchors: PubKeyId[]
   onMerged: () => Promise<void> | void
 }
 
@@ -51,7 +54,7 @@ function formatWhen(ms: number | null): string {
   return hours < 24 ? `${hours} h ago` : `${Math.round(hours / 24)} d ago`
 }
 
-export function SyncPanel({ keyPair, onMerged }: Props) {
+export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
   const [tab, setTab] = useState<Tab>('pull')
   // Only steer the opening tab once. After that the tab is the user's to
   // choose, and re-steering on every refresh would yank it away mid-task.
@@ -457,6 +460,8 @@ export function SyncPanel({ keyPair, onMerged }: Props) {
                 Add source
               </button>
             </div>
+
+            <InvitePanel sources={sources} anchors={anchors} />
           </div>
         ) : null}
       </div>

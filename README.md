@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 343 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 395 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -426,6 +426,37 @@ git clone https://github.com/balogvn/lacinia-collective && npm install
 A commons is not a jurisdiction. It has no borders, no admin and no shutdown switch, because there
 is nothing running that could be shut down.
 
+### Inviting people to it
+
+Under *Sync → Sources* there is **Invite someone**, which produces one link:
+
+```
+https://balogvn.github.io/lacinia-collective/join/#v=1&c=../commons/&n=Ikorodu+market&a=<anchor key>
+```
+
+Send it, or hold the QR up to someone's camera — it is a plain https URL, so any phone's camera app
+opens it with nothing installed.
+
+Three decisions in that link are worth knowing about.
+
+**Everything rides in the fragment.** Fragments are never sent to a server, so no host log, CDN or
+`Referer` header ever records which commons somebody was invited to. Which commons you follow is
+social-graph metadata, and on a query string it would be readable by every hop in between.
+
+**The commons address is stored relative.** `c=../commons/` rather than the full URL: it saves ~50
+characters, which is the difference between a QR that scans on a cheap camera and one that does
+not, and it makes a printed code portable — the same sheet works whether people reach the app at
+github.io, a LAN address, or a folder on a USB stick.
+
+**The anchor is offered, never applied.** This is the part that matters. A link carrying only an
+address produces a commons that syncs perfectly and reads as completely empty — every score zero,
+every tier Observer — because standing is derived from anchors and a new device has none. So the
+invite carries them. But the join screen will not install one: it shows the twelve-character
+fingerprint, asks whether you checked it against the poster or the person, and leaves the button
+disabled until you say you did — per anchor, never pre-ticked, with no "trust all". A source may be
+added with one tap because it is untrusted transport and can only decide what to show you. An
+anchor is an axiom of your trust graph, and no forwarded link gets to write one.
+
 ---
 
 ## Mutual aid and time credits
@@ -725,7 +756,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 343 checks across seven suites, each an attack or a field failure.
+`npm run verify` — 395 checks across eight suites, each an attack or a field failure.
 
 ### `verify:protocol` — 95 checks
 
@@ -811,17 +842,38 @@ canonicalizers agree byte-for-byte.
 
 ---
 
+### `verify:invite` — 52 checks
+
+An invite is the one artefact here designed to be forwarded by strangers into group chats, so every
+check is a hostile link.
+
+- `javascript:`, `data:`, `file:`, `blob:`, `ftp:` and `vbscript:` commons addresses are refused
+- `//evil.example/commons/` looks relative and is not — it is resolved before it is judged, so it
+  cannot borrow the inviter's origin, and it lands flagged as cross-origin
+- an `http:` commons is refused from an `https:` page and allowed from an `http:` one, because the
+  laptop-on-market-wifi case is real and the downgrade case is an attack
+- bidi overrides, zero-width characters and control characters are stripped from the label, which
+  is attacker-controlled text rendered next to a hostname
+- 3,000 fuzzed links, none of which throws
+- an invite carrying twelve anchors keeps four; garbage keys are dropped; duplicates collapse
+- a link printed for GitHub Pages still resolves correctly when opened on a LAN address
+- a real invite with one anchor is 135 characters — inside the 152 that scan reliably on a cheap
+  camera, which is what storing the commons address relative buys
+
+---
+
 ## Project layout
 
 ```
 src/
-├── app/                     routes (landing, identity, aid, deliberate)
+├── app/                     routes (landing, identity, aid, deliberate, guide, join)
 ├── components/
 │   ├── identity/            workbench, vouch bench, anchors, recovery phrase
 │   ├── market/              balance, listings, settlement bench, history
 │   ├── deliberate/          vote queue, opinion map, bridging results
 │   ├── moderate/            flag control, withheld panel, policy settings
-│   ├── sync/                pull/publish panel, animated-QR send + receive
+│   ├── sync/                pull/publish panel, invite composer, animated-QR send + receive
+│   ├── join/                what an invite link lands on
 │   ├── qr/                  QR display and scanner
 │   ├── landing/             live in-browser handshake demo
 │   └── system/              service worker registration
@@ -829,6 +881,7 @@ src/
 └── lib/
     ├── codec.ts             binary wire format
     ├── locality.ts          places, across the legacy and worldwide record shapes
+    ├── invite.ts            invite links: build, parse, and refuse
     ├── hlc.ts               hybrid logical clock
     ├── telemetry.ts         client-side structured logging
     ├── crypto/              keypairs, signing, PIN vault
@@ -840,7 +893,7 @@ src/
     ├── moderate/            flags, visibility policy, vouch revocation
     ├── sync/                canonical JSON, ops, bundles, merge, transport
     └── qr/                  render + scan
-scripts/                     seven adversarial suites, CI aggregator, analyser, seeders
+scripts/                     eight adversarial suites, CI aggregator, analyser, seeders
 ```
 
 Layering is strict: `crypto` knows nothing of Dexie, `codec` knows nothing of crypto, `vouch`

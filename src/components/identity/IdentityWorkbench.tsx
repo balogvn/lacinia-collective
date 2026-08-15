@@ -120,7 +120,11 @@ export function IdentityWorkbench() {
       </div>
 
       <div id="sync">
-        <SyncPanel keyPair={commons.keyPair} onMerged={commons.refresh} />
+        <SyncPanel
+          keyPair={commons.keyPair}
+          anchors={commons.anchors}
+          onMerged={commons.refresh}
+        />
       </div>
 
       <AnchorPanel

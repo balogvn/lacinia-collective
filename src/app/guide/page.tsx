@@ -262,6 +262,21 @@ export default function GuidePage() {
               used when you sync, which is kept deliberately tiny.
             </p>
           </Q>
+          <Q q="How do I bring someone in?">
+            <p>
+              Open <strong>Sync</strong>, then <strong>Sources</strong>, and use{' '}
+              <strong>Invite someone</strong>. You get one link. Send it however you already talk,
+              or hold the square code up to their camera — their normal camera app opens it, with
+              nothing to install first.
+            </p>
+            <p>
+              The link does two things when they open it. It offers to add the noticeboard, which
+              is one tap. And it shows them the twelve characters that identify whoever your group
+              treats as its starting point — a market association, a parish, a mosque. That second
+              part they have to confirm themselves, after checking those characters with you. A
+              link is not allowed to decide who someone trusts, and this one does not.
+            </p>
+          </Q>
           <Q q="Does it only work where I live?">
             <p>
               It works anywhere. You pick your country and type your own area in your own words —
