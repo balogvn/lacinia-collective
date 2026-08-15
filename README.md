@@ -946,6 +946,7 @@ src/
 │   ├── moderate/            flag control, withheld panel, policy settings
 │   ├── sync/                pull/publish panel, invite composer, animated-QR send + receive
 │   ├── join/                what an invite link lands on
+│   ├── lang/                translations shown beside originals
 │   ├── onboard/             the first-run prompt
 │   ├── qr/                  QR display and scanner
 │   ├── landing/             live in-browser handshake demo
@@ -1012,6 +1013,14 @@ checked it against the poster, the broadcast, or the person.
 device adds the co-hosted commons in one tap, reads it as a guest, and creates an identity when it
 wants to act rather than at the door. The prompt names one action per state and refuses to imply
 standing that does not exist.
+
+**Translation.** *Protocol complete, surfaced in deliberation.* Statements carry an optional
+language tag, translations render beside the original with the language named, and anyone with a key
+can add one. Attribution is deliberately withheld inside the vote queue — that surface hides a
+statement's author so people judge the claim rather than the person, and a translator's name at the
+same moment would put one back. It is signed, it syncs, and it is shown everywhere judgement is not
+happening. **Not yet surfaced:** the work queue (`needsTranslation`) that shows untranslated items
+to the people who can read them, and translations on listings.
 
 **Still outstanding:** nothing from the original roadmap. What remains are the two standing
 limits described under [Limits](#limits): translation depends on a bilingual neighbour turning up,

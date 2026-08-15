@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
+import { useTranslations } from '@/hooks/useTranslations'
 import { FirstRunPanel } from '@/components/onboard/FirstRunPanel'
 import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useDeliberation } from '@/hooks/useDeliberation'
@@ -26,6 +27,7 @@ export function DeliberationWorkbench() {
     delib.map?.status === 'ok' ? delib.map.participants : undefined,
   )
   const firstRun = useFirstRun(!!commons.identity)
+  const tr = useTranslations()
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
@@ -186,6 +188,16 @@ export function DeliberationWorkbench() {
         <>
           <VoteQueue
             statements={delib.statements}
+            translations={tr.translations}
+            readerLangs={tr.readerLangs}
+            canTranslate={!!commons.keyPair}
+            onTranslate={(statementId, input) =>
+              tr.translate(commons.keyPair!, {
+                targetId: statementId,
+                targetEntity: 'statement',
+                ...input,
+              })
+            }
             myVotes={delib.myVotes}
             selfPub={commons.identity.pubKey}
             evaluate={moderation.evaluate}
@@ -199,11 +211,12 @@ export function DeliberationWorkbench() {
             }
             onUnflag={moderation.dropFlag}
             onVote={delib.vote}
-            onAdd={async (text) => {
+            onAdd={async (text, lang) => {
               await delib.addStatement({
                 authorPub: commons.identity!.pubKey,
                 conversationId: active.id,
                 text,
+                ...(lang ? { lang } : {}),
               })
             }}
           />

@@ -672,6 +672,27 @@ export async function saveFlag(flag: Flag): Promise<void> {
 
 /* ──────────────────────────── translations ──────────────────────────── */
 
+const READS_KEY = 'lang.reads'
+
+/**
+ * Languages this reader understands. Local only — never published.
+ *
+ * It never filters anything. It decides which rendering to scroll to first and
+ * which items appear in the translation work queue, and that is all; see
+ * lib/lang/translation.ts for why filtering by language would be the wrong
+ * thing to build here.
+ */
+export async function getReaderLanguages(): Promise<string[]> {
+  const row = await getDB().meta.get(READS_KEY)
+  const value = row?.value
+  return Array.isArray(value) ? (value as string[]) : []
+}
+
+export async function setReaderLanguages(langs: readonly string[]): Promise<void> {
+  await getDB().meta.put({ key: READS_KEY, value: [...new Set(langs)] })
+}
+
+
 /**
  * Stores a translation, refusing one whose signature does not check out.
  *
