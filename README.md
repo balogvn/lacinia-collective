@@ -1,10 +1,10 @@
 # The Lacinia Collective
 
-An offline-first digital commons for mutual aid — peer-vouched identity, time-banked resources, and
+An offline-first digital commons for mutual aid: peer-vouched identity, time-banked resources, and
 civic deliberation that works with the network off, anywhere in the world.
 
-It was designed against Nigerian conditions — metered data, patchy signal, low-end Android, and a
-real need to build trust across ethno-religious lines — because designing for the hardest case is
+It was designed against Nigerian conditions (metered data, patchy signal, low-end Android, and a
+real need to build trust across ethno-religious lines) because designing for the hardest case is
 the only way to know the easy ones are covered. Nothing in it is Nigeria-only: a place is a country
 code plus whatever you call your own area, and any group anywhere can run its own commons without
 asking anyone for permission. See [Running your own commons](#running-your-own-commons).
@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 504 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 504 adversarial checks headlessly in a few seconds. Run it first, if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -53,7 +53,7 @@ Then add `http://localhost:3000/commons/` as a source in **Sync → Sources**.
 The app and its commons are served from the same origin, so the sync source is
 same-origin and needs no CORS anywhere.
 
-1. **Create an identity** at `/identity` — twelve words, no email, no password.
+1. **Create an identity** at `/identity`: twelve words, no email, no password.
 2. **Add the demo commons** under *Sync → Sources*:
 
    ```
@@ -64,7 +64,7 @@ same-origin and needs no CORS anywhere.
    vouchers, four listings, and a 21-person deliberation.
 3. **Trust the demo anchor** under *Anchors → Manage*, or every score stays at
    zero and the trust ladder looks broken. Anchors are the axioms of the graph
-   and are deliberately never shipped in the app — each device chooses its own.
+   and are deliberately never shipped in the app: each device chooses its own.
    This one is a throwaway used to make the sample data legible; the real root
    is in [The founding anchor](#the-founding-anchor):
 
@@ -83,7 +83,7 @@ Then `/deliberate` shows the moderation layer doing the thing it exists for:
 
 More flags survives; fewer flags corroborated across the divide does not.
 
-> The demo data is synthetic — throwaway keys, invented traders, an invented
+> The demo data is synthetic: throwaway keys, invented traders, an invented
 > market levy. Its anchor key was generated during a seed run and its secret was
 > never kept, so nobody can act as it. That is fine for illustration and useless
 > as a root of trust, which is what the next section is for.
@@ -99,18 +99,17 @@ working. The real root of this commons is a key someone actually holds:
 gB7qR0vuqtKJHQspmakOU0gVIBrF-fH8Y3llRP_x56I
 ```
 
-Fingerprint **`G2YH-NBDP-RN54`**. Check that fingerprint, not the long string —
-forty-three characters of base64 cannot be compared by eye, twelve grouped
+Fingerprint **`G2YH-NBDP-RN54`**. Check that fingerprint, not the long string: forty-three characters of base64 cannot be compared by eye, twelve grouped
 characters can, and the app asks you to confirm you checked it before it will
 add an anchor.
 
 Trusting this key roots your trust graph in it. Nothing obliges you to, and the
-app ships with no anchors at all — a fresh install trusts nobody, including
+app ships with no anchors at all: a fresh install trusts nobody, including
 whoever wrote it.
 
 **What being an anchor does and does not mean.** It is not an admin account.
 There is no login, no console, and no privileged code path anywhere in this
-repository — `getAnchors()` returns `[]` on a fresh device and the Remove button
+repository: `getAnchors()` returns `[]` on a fresh device and the Remove button
 works on any anchor including yourself. An anchor's reach is exactly the number
 of people who chose to paste its key, and it becomes meaningful only through
 vouching people in person. A published key with no vouches confers nothing.
@@ -159,20 +158,20 @@ identity page rather than only living here.
 ### One language at a time, bridged by people
 
 An early version tagged everything with a language and offered a picker while nothing translated and
-nothing filtered on it. The picker promised a capability that did not exist — post in Hausa and
-expect Hausa speakers to find it, and nothing whatsoever happened — so the tags and pickers were
+nothing filtered on it. The picker promised a capability that did not exist (post in Hausa and
+expect Hausa speakers to find it, and nothing whatsoever happened) so the tags and pickers were
 removed rather than left as decoration.
 
 They are back now, because there is finally something behind them. **A translation is a signed
 human act**: someone who reads both languages writes it, signs it with their key, and can be paid in
-time credits like anyone else doing an hour of work. It never replaces the original — it hangs
+time credits like anyone else doing an hour of work. It never replaces the original: it hangs
 beside it, attributed, so you can see who rendered it and what standing they hold.
 
 Two things this deliberately is not.
 
 **It is not a language filter.** Here language tracks the very divides the app exists to cross, so
 "show me only what I can read" would be ethnic filtering with a friendly label. Worse, deliberation
-ranks statements by what bridges opinion *groups* — filtering by language would partition those
+ranks statements by what bridges opinion *groups*: filtering by language would partition those
 groups before the algorithm ran, and what surfaced would be consensus inside one bloc. There is no
 call anywhere in `lib/lang/` that removes content because of the language it is in. The tag exists
 to find work that needs doing, and the queue it feeds is the inverse of a filter: it shows what you
@@ -180,13 +179,13 @@ cannot read to the people who can.
 
 **It is not machine translation.** A model small enough for a 2GB Android phone is not good enough
 to be trusted with what a neighbour said, and a translation pass in CI would put a machine in the
-middle of every sentence people exchange — in an app whose whole claim is that nothing sits between
+middle of every sentence people exchange: in an app whose whole claim is that nothing sits between
 them. It would also be one more thing to capture: whoever ran the pass would decide what everyone
 else understood.
 
 Name the cost plainly: **this only works where a bilingual neighbour shows up.** Nothing is rendered
 until a person does it, so a commons with no bilingual members stays as divided as it was. That is a
-real limit, and it is the honest one — the alternative was an oracle.
+real limit, and it is the honest one: the alternative was an oracle.
 
 ### No appeals process
 
@@ -196,11 +195,11 @@ the thing this architecture exists without.
 
 What stands in for it is narrower and weaker, and worth being precise about:
 
-- **Cross-group corroboration** — one bloc alone cannot withhold anything, so the common abuse of an
+- **Cross-group corroboration** (one bloc alone cannot withhold anything, so the common abuse of an
   appeals process is structurally unavailable in the first place
 - **Every withheld item stays one tap from being read**, with the reason attached
 - **Authors always see their own work**, and are told when others may not
-- **The reader can switch hiding off entirely** — the device is sovereign
+- **The reader can switch hiding off entirely**) the device is sovereign
 
 So a wrongly-withheld statement is recoverable by any individual reader, and never recoverable
 *collectively*. There is no mechanism to make the community see it again. Resolution stays where the
@@ -238,7 +237,7 @@ bearer token and bearer tokens are exactly what a Sybil attacker wants.
 Two properties do the real work:
 
 **Proof-of-possession.** Bilkisu signs her own request. Without it she could display a QR containing
-someone else's public key and harvest vouches into an identity she does not control — or into one
+someone else's public key and harvest vouches into an identity she does not control, or into one
 belonging to a real person being impersonated.
 
 **Nonce binding.** The voucher echoes a one-time number Bilkisu just minted. Without it a voucher is
@@ -252,7 +251,7 @@ precedes it. There is no canonicalisation step, so there is no canonicalisation 
 
 ## Sybil resistance
 
-Signatures prove authorship. They prove nothing about personhood — keys are free, so an attacker
+Signatures prove authorship. They prove nothing about personhood: keys are free, so an attacker
 mints five hundred and has them vouch each other.
 
 The scoring in [`trust.ts`](src/lib/vouch/trust.ts) rests on one observation: an attacker can create
@@ -266,13 +265,13 @@ are the scarce resource, so the system measures flow across that boundary and ca
 3. **Top-K aggregation.** At most the five strongest incoming vouches count, combined by noisy-OR.
    The sixth is worth nothing.
 4. **Tier ceiling.** Nobody attests above their own standing, and a Steward's vouch produces a
-   Neighbour — only anchors mint Stewards.
+   Neighbour: only anchors mint Stewards.
 
 ### Mechanism 1 was learned the hard way
 
 The first implementation used iterative fixed-point propagation with mechanisms 2–4 in place. It
-looks rigorous and it does not work. Simulated — one compromised Steward vouching 60 fakes that then
-cross-vouch — the clique converged to **0.961**, *above* the **0.765** of the account that created
+looks rigorous and it does not work. Simulating one compromised Steward vouching 60 fakes that then
+cross-vouch, the clique converged to **0.961**, above the **0.765** of the account that created
 it. Each round the fakes' inflated scores fed the next round's edges.
 
 Layering removes the possibility structurally instead of damping it. Same simulation, after:
@@ -287,18 +286,18 @@ Both figures are asserted in `verify:protocol`, so the regression cannot come ba
 
 ### Anchors
 
-Anchors are the axioms — the only scores not derived from something else. With an empty anchor set
+Anchors are the axioms: the only scores not derived from something else. With an empty anchor set
 every score in the system is zero and nobody leaves Observer.
 
 They are chosen **by the device owner**, never shipped by us. A hardcoded anchor list would be a
-central authority in decentralised costume. A community body — a market association, a
-co-operative, a union, a school — publishes its public key somewhere verifiable in person, and each
+central authority in decentralised costume. A community body (a market association, a
+co-operative, a union, a school) publishes its public key somewhere verifiable in person, and each
 person decides whose word roots their graph. Two people in one town may hold different anchor sets
 and compute different, equally valid scores.
 
 **This is the honest limit of the design:** compromise an anchor and you mint real Stewards. No
 cryptography prevents that. It is contained by keeping anchor sets small, physically accountable and
-revocable — governance, not maths.
+revocable: governance, not maths.
 
 ---
 
@@ -321,11 +320,11 @@ and the daily merge runs on GitHub Actions, which is free for public repositorie
 ### Bundles are untrusted transport
 
 Every op carries its own author signature. A bundle's signature attests only *"I relayed these
-bytes"* — never *"these claims are true"*. A relay can republish anyone's ops and cannot forge one,
+bytes"*, never *"these claims are true"*. A relay can republish anyone's ops and cannot forge one,
 so any device may rebroadcast any bundle it received. Gossip is safe by construction, and a
 compromised relay can censor but never fabricate.
 
-The tempting alternative — sign the bundle, trust its contents — makes whoever can write a file on
+The tempting alternative (sign the bundle, trust its contents) makes whoever can write a file on
 the CDN an authority over everything inside it.
 
 ### Authorization is per-entity
@@ -338,7 +337,7 @@ the CDN an authority over everything inside it.
 The asymmetry is deliberate and load-bearing. A voucher is self-authenticating: it carries the
 issuer's signature over its own bytes, verified independently. Relaying other people's vouchers is
 precisely how the trust graph propagates. Requiring `op.author == issuer` would mean a vouch could
-only ever reach devices the issuer personally synced with — which defeats sync entirely.
+only ever reach devices the issuer personally synced with, which defeats sync entirely.
 
 Uniform-strict authorization breaks trust propagation. Uniform-loose lets anyone author anything.
 
@@ -347,7 +346,7 @@ Uniform-strict authorization breaks trust propagation. Uniform-loose lets anyone
 For each op: if the record we hold has an HLC ≥ the incoming op's, skip; otherwise apply. That one
 comparison makes application commutative and idempotent, so bundles arriving duplicated,
 interleaved, or years apart converge to the same state everywhere. Sorting first would work for one
-pass and fail the moment a late bundle arrived out of order — the normal case on phones that sync
+pass and fail the moment a late bundle arrived out of order: the normal case on phones that sync
 every few weeks.
 
 Tombstones are ordinary ops, so a delete races an edit by HLC like any other write. The suite covers
@@ -357,21 +356,21 @@ undone by the late-arriving `put`.
 ### Denial of service is a real threat here
 
 Unlike Task 1, bundles arrive from a public URL. Ed25519 verification costs ~1ms, so a 100,000-op
-bundle is a 100-second frozen main thread on a low-end phone — a DoS delivered as a legitimate file.
+bundle is a 100-second frozen main thread on a low-end phone: a DoS delivered as a legitimate file.
 Caps are enforced **before** `JSON.parse` and before any signature work: 2 MB, 2,000 ops, plus a
 verification budget and a trust-policy hook so unanchored authors' listings are dropped without ever
 being verified.
 
 ### Content addressing, and a censorship attack it closed
 
-Bundle ids are a hash of the op set alone — deliberately excluding publisher and timestamp. Deriving
+Bundle ids are a hash of the op set alone: deliberately excluding publisher and timestamp. Deriving
 the id from the signed document (the obvious first move, and what this originally did) makes it
 depend on the wall clock, so a relay republishing identical ops mints a fresh id every run and every
 device re-downloads byte-identical content forever.
 
 Fixing that surfaced a second issue. Devices record merged bundle ids and never re-fetch them, so an
 attacker who published junk carrying a *real* bundle's id would make devices skip the genuine one
-permanently — silent censorship without forging anything. `verifyBundle` now recomputes the content
+permanently: silent censorship without forging anything. `verifyBundle` now recomputes the content
 address and rejects any mismatch before transport records it.
 
 ### Data cost
@@ -385,11 +384,11 @@ The whole argument for this architecture, measured by the suite:
 | Nothing changed since last sync | **one 304, ~0 bytes** |
 | 11 ops over animated QR | 8.6 KB → 2.9 KB, 19 frames, 3.2 s |
 
-### Push has no server — that is the design
+### Push has no server: that is the design
 
 A static host serves files and accepts nothing. The three honest paths, all implemented:
 
-1. **Export a file** and send it however you already talk — WhatsApp, email, a pull request.
+1. **Export a file** and send it however you already talk: WhatsApp, email, a pull request.
 2. **Hand it to another phone** over animated multi-frame QR, no network at all.
 3. **POST to an optional relay** you configure yourself.
 
@@ -398,7 +397,7 @@ A static host serves files and accepts nothing. The three honest paths, all impl
 ### The compute layer
 
 `.github/workflows/aggregate.yml` runs daily and on every inbox push. It verifies every op, merges,
-and **compacts** — keeping one op per `(entity, entityId)`, since all but the newest is redundant
+and **compacts**: keeping one op per `(entity, entityId)`, since all but the newest is redundant
 under last-writer-wins. A commons with 10,000 lifetime edits across 800 records compacts to 800 ops,
 so a new joiner fetches one small snapshot instead of the entire history.
 
@@ -424,19 +423,19 @@ regardless of which one delivered it.
 git clone https://github.com/balogvn/lacinia-collective && npm install
 ```
 
-1. **Deploy the app.** Any static host works — GitHub Pages, Netlify, Vercel, a Raspberry Pi on a
+1. **Deploy the app.** Any static host works: GitHub Pages, Netlify, Vercel, a Raspberry Pi on a
    school LAN, a folder on a USB stick. `npm run build` emits a fully static export. Set
    `NEXT_PUBLIC_BASE_PATH` if it is served from a subdirectory.
 2. **Choose your anchors.** Create an identity, publish its public key and fingerprint where your
    people can check them, and have them add it under *Anchors → Manage*. This is the only
-   irreducibly social step. The app ships with **no** anchors — not even the one above — so a fresh
+   irreducibly social step. The app ships with **no** anchors, not even the one above, so a fresh
    install trusts nobody until someone chooses.
 3. **Accept contributions.** Members export a bundle and send it however they already talk; you drop
    it into `public/commons/inbox/` and commit. `.github/workflows/aggregate.yml` verifies, merges
    and compacts it into a snapshot on push and daily. The CI holds no signing key, so hosting a
    commons grants no authority over it.
 4. **Or host nothing at all.** Steps 1–3 are a convenience. Two phones swapping animated QR frames
-   across a table are a complete commons with no host, no domain and no internet — which is the
+   across a table are a complete commons with no host, no domain and no internet, which is the
    configuration the whole protocol is designed around.
 
 A commons is not a jurisdiction. It has no borders, no admin and no shutdown switch, because there
@@ -450,7 +449,7 @@ Under *Sync → Sources* there is **Invite someone**, which produces one link:
 https://balogvn.github.io/lacinia-collective/join/#v=1&c=../commons/&n=Ikorodu+market&a=<anchor key>
 ```
 
-Send it, or hold the QR up to someone's camera — it is a plain https URL, so any phone's camera app
+Send it, or hold the QR up to someone's camera: it is a plain https URL, so any phone's camera app
 opens it with nothing installed.
 
 Three decisions in that link are worth knowing about.
@@ -461,15 +460,15 @@ social-graph metadata, and on a query string it would be readable by every hop i
 
 **The commons address is stored relative.** `c=../commons/` rather than the full URL: it saves ~50
 characters, which is the difference between a QR that scans on a cheap camera and one that does
-not, and it makes a printed code portable — the same sheet works whether people reach the app at
+not, and it makes a printed code portable: the same sheet works whether people reach the app at
 github.io, a LAN address, or a folder on a USB stick.
 
 **The anchor is offered, never applied.** This is the part that matters. A link carrying only an
-address produces a commons that syncs perfectly and reads as completely empty — every score zero,
-every tier Observer — because standing is derived from anchors and a new device has none. So the
+address produces a commons that syncs perfectly and reads as completely empty (every score zero,
+every tier Observer) because standing is derived from anchors and a new device has none. So the
 invite carries them. But the join screen will not install one: it shows the twelve-character
 fingerprint, asks whether you checked it against the poster or the person, and leaves the button
-disabled until you say you did — per anchor, never pre-ticked, with no "trust all". A source may be
+disabled until you say you did: per anchor, never pre-ticked, with no "trust all". A source may be
 added with one tap because it is untrusted transport and can only decide what to show you. An
 anchor is an axiom of your trust graph, and no forwarded link gets to write one.
 
@@ -478,14 +477,14 @@ anchor is an axiom of your trust graph, and no forwarded link gets to write one.
 ## Mutual aid and time credits
 
 One hour is sixty credits, whoever works it. That equality is the reason this is a time bank and
-not a marketplace — it refuses to price a lawyer's hour above a cleaner's. Goods are quoted at the
+not a marketplace: it refuses to price a lawyer's hour above a cleaner's. Goods are quoted at the
 time they would take to replace, and a listing worth `0` is a gift that never touches the ledger.
 
 ### There is nothing to double-spend
 
 A currency with no server and devices offline for weeks cannot prevent double-spending by
 consensus. So the ledger is **mutual credit** (Sardex, LETS, classic timebanks), not a token.
-Balances start at zero, and every entry moves the same amount in opposite directions — the sum of
+Balances start at zero, and every entry moves the same amount in opposite directions: the sum of
 all balances is always exactly zero. Credits are created at the moment of exchange and destroyed
 symmetrically. There is no stock of credits sitting anywhere, which is why there is nothing to
 spend twice. You cannot spend what you do not have; you go negative instead.
@@ -499,8 +498,8 @@ disappear. Credit limits bound the exposure, and they are earned rather than gra
 
 | Tier | May go into debt by |
 |---|---|
-| Observer | 1h — a single hour of goodwill on arrival |
-| Neighbour | 8h — a working day |
+| Observer | 1h, a single hour of goodwill on arrival |
+| Neighbour | 8h, a working day |
 | Steward | 32h |
 | Anchor | 80h |
 
@@ -512,7 +511,7 @@ times.
 only compute a balance from entries it has actually seen, so someone can withhold recent debts from
 a stranger they have never synced with. A computed balance is a *lower bound* on how indebted a
 person really is. Mutual credit bounds this risk and makes it social; it does not eliminate it.
-Every balance therefore carries a `confidence` — `own`, `observed`, `thin`, or `none` — and the
+Every balance therefore carries a `confidence` (`own`, `observed`, `thin`, or `none`) and the
 screen says which.
 
 ### An entry with one signature is not an entry
@@ -533,7 +532,7 @@ Settlement is a two-scan handshake. The **provider proposes** (they know what wa
      a pending proposal → entry
 ```
 
-The confirmation QR is **not self-describing** — it carries only the nonce and the payer's
+The confirmation QR is **not self-describing**: it carries only the nonce and the payer's
 signature, because the proposing device already holds the proposal. This is a deliberate reversal
 of the Task 1 decision to keep vouchers self-describing: a voucher is a durable credential that
 gets re-scanned and relayed, where "signature invalid" is a rejection nobody can act on. A
@@ -542,7 +541,7 @@ which is precise and actionable. Different artefact, different tradeoff.
 
 ### Sync, and why anyone may relay an entry
 
-Ledger entries carry both parties' signatures, so they are self-authenticating — the same asymmetry
+Ledger entries carry both parties' signatures, so they are self-authenticating: the same asymmetry
 as vouchers in Task 2, and for a sharper reason. A balance is meaningless if third parties cannot
 see the entries behind it, so restricting relay to the two participants would mean nobody could
 ever assess a stranger's standing before extending them credit.
@@ -556,7 +555,7 @@ same exchange arriving from both parties and three relays is one row.
 ### Zero-sum audit
 
 `auditZeroSum` runs after every merge and every refresh. A non-zero total means an entry was counted
-once rather than twice — arithmetic drift that would silently inflate the money supply, which is
+once rather than twice: arithmetic drift that would silently inflate the money supply, which is
 the one failure a currency cannot recover from. It is surfaced in the UI rather than swallowed.
 
 ---
@@ -570,8 +569,7 @@ actually exist and surfaces the statements that earn agreement **across** them.
 
 Threaded discussion rewards the dunk: the highest-engagement move is quoting someone in order to
 win against them, which is exactly the dynamic that hardens the divides this project exists to
-bridge. Removing the affordance removes the behaviour. You may write a statement or vote on one —
-there is nothing to reply *to*, so there is nothing to win.
+bridge. Removing the affordance removes the behaviour. You may write a statement or vote on one: there is nothing to reply *to*, so there is nothing to win.
 
 The author's name is also hidden at the moment of judgement. Once a name is attached people vote on
 the person, not the claim. The author is still recorded and signed; it is simply not shown on the
@@ -582,7 +580,7 @@ standalone statement, which people find harder to write. Harder to write, imposs
 
 ### Bridging is not popularity
 
-Ranking by total agreement is majority tyranny with a scatter plot attached — the largest bloc's
+Ranking by total agreement is majority tyranny with a scatter plot attached: the largest bloc's
 positions float to the top, the minority concludes the tool is not for them, and leaves.
 
 ```
@@ -600,7 +598,7 @@ at #2; bridging puts it at #5. A pipeline that merely re-sorted by headcount wou
 
 1. Build a participant × statement matrix from votes (−1 / 0 / +1).
 2. Impute missing entries with the statement mean, then centre.
-3. Two principal components by power iteration (NIPALS) directly on the matrix — no S×S covariance,
+3. Two principal components by power iteration (NIPALS) directly on the matrix: no S×S covariance,
    so it runs on a phone.
 4. k-means in that 2D space, k chosen by silhouette.
 5. Per-group agree rates → consensus.
@@ -618,7 +616,7 @@ what the community thinks while both being right. Three traps, each handled:
 - **Eigenvector sign ambiguity.** `(u, s)` and `(−u, −s)` are the same component. Left alone, two
   devices produce mirror-image maps, put the same person on opposite sides, and every group id
   disagrees across the network. Fixed by forcing the largest-magnitude loading positive.
-- **k-means initialisation.** Seeded PRNG derived from a hash of the sorted statement ids — never
+- **k-means initialisation.** Seeded PRNG derived from a hash of the sorted statement ids, never
   `Math.random`, which is also unavailable in workflow scripts.
 - **Float accumulation order.** Every key sorted before iteration.
 
@@ -632,7 +630,7 @@ Clustering will always return *something*. These stop it returning something mea
 - **The evidence gate.** Only groups that actually voted on a statement may set its floor. "We have
   no evidence" and "they are divided" are completely different findings and must not share a number.
 - **k is bounded by the evidence.** Resolving *k* groups needs roughly 3*k* statements. Without this
-  a 7-statement conversation cheerfully reported four factions with a high silhouette — well
+  a 7-statement conversation cheerfully reported four factions with a high silhouette: well
   separated in the projection, and still an artefact of two noisy axes and twenty-one people.
 
 Below five participants or five statements it reports `insufficient` and says what is missing,
@@ -651,7 +649,7 @@ abusive rather than merely unpopular. Three constraints kill the obvious designs
 2. **Unpopular ≠ abusive.** Task 4 exists to stop the largest bloc speaking for everyone. A system
    that hides whatever gets enough reports hands that power straight back, wearing a safety badge.
 3. **The real attack is factional.** In a tool built to bridge ethno-religious divides, the failure
-   mode is one bloc mass-flagging the other bloc's statements — indistinguishable from legitimate
+   mode is one bloc mass-flagging the other bloc's statements: indistinguishable from legitimate
    use if you only count flags.
 
 ### Cross-group corroboration
@@ -663,15 +661,14 @@ bridging    = min over groups of agreement      → surfaces what unites
 withholding = min over groups of flag pressure  → hides only what ALL groups reject
 ```
 
-A statement is withheld only when **every** group flags it. Flags from one group alone do nothing —
-that is a disagreement, and disagreement already has a button.
+A statement is withheld only when **every** group flags it. Flags from one group alone do nothing: that is a disagreement, and disagreement already has a button.
 
 Measured in the browser on real synced data, from a seeded 21-person conversation:
 
 | Statement | Flags | Outcome |
 |---|---|---|
-| "The lock-up owners decide everything among themselves" | **14** — all of bloc A | **Visible** |
-| "The traders from the north end are thieves…" | **10** — 6 of A, 4 of B | **Withheld** |
+| "The lock-up owners decide everything among themselves" | **14**, all of bloc A | **Visible** |
+| "The traders from the north end are thieves…" | **10**, 6 of A, 4 of B | **Withheld** |
 
 More flags survives. Fewer flags, corroborated across the divide, does not.
 
@@ -682,7 +679,7 @@ to withholding; **noise** reasons (spam, off-topic) can only ever downrank. Unan
 from both groups still cannot hide anything. Collapsing the two into one "report" button is exactly
 how a moderation queue becomes a voting booth.
 
-`DANGER` clears a lower threshold than `ABUSE` — the cost of showing incitement for another day is
+`DANGER` clears a lower threshold than `ABUSE`: the cost of showing incitement for another day is
 asymmetric. That exception is a named constant and stated in the UI, not buried.
 
 ### Fail open, and due process
@@ -691,16 +688,16 @@ Where evidence is insufficient, **show**. In a system whose purpose is bridging 
 hiding costs more than wrongly showing.
 
 - Every withheld item is listed openly with its reason and is **one tap from being read**.
-- **Authors always see their own work**, whatever anyone has flagged — being withheld without being
+- **Authors always see their own work**, whatever anyone has flagged: being withheld without being
   able to read what was withheld is disappearance, not moderation. This is checked *before* the
   self-flag rule, because a guarantee must beat a preference.
-- Your own flag mutes an item for you alone, needing no corroboration — it censors nobody but you.
+- Your own flag mutes an item for you alone, needing no corroboration: it censors nobody but you.
 - The reader can turn hiding off entirely. The device is sovereign.
 
 ### One person, one objection
 
 A flag's id is the content address of its signed bytes, and those bytes include the reason and the
-timestamp — so re-flagging an item does not update your flag, it mints a second valid one. Every
+timestamp, so re-flagging an item does not update your flag, it mints a second valid one. Every
 count downstream then read one person as several: `flagCount` reported 60 where one person had
 objected 60 times, and the weight sums behind corroboration counted them 60 times over.
 
@@ -710,7 +707,7 @@ anything counts. Deduplicating on read rather than on write is deliberate: dupli
 over sync from devices whose behaviour we do not control, and every one of them carries a valid
 signature.
 
-Worth stating what this was and was not. The arithmetic looked alarming — `flagWeight` dilutes by
+Worth stating what this was and was not. The arithmetic looked alarming: `flagWeight` dilutes by
 `sqrt(outgoing/quota)`, so N duplicates contribute `W · sqrt(N · quota)`, a linear count against a
 square-root penalty, and on paper a fresh Observer key reached an Anchor's weight at 50 duplicates.
 It did not translate into censorship power, because both decision paths already gate on *distinct
@@ -721,26 +718,26 @@ displayed number that lied and weight sums that were wrong, not a way to bury a 
 ### Sybil resistance
 
 Flag weight scales with trust tier (an Observer's flag is worth 0.15 of a Steward's), and flagging
-everything dilutes every flag you have given — the same capacity constraint as vouching. Sixty
+everything dilutes every flag you have given: the same capacity constraint as vouching. Sixty
 freshly-minted keys cannot hide anything.
 
 ### Revocation
 
 Content moderation cannot answer "this person turned out to be a bad actor". **Only the issuer may
-revoke their own vouch** — if anyone could revoke anyone's, the trust graph would be erasable by one
+revoke their own vouch**, if anyone could revoke anyone's, the trust graph would be erasable by one
 bad actor, an attack cheaper than forging trust and more damaging, because it strips standing from
 people who earned it.
 
 Revocations are self-signed and therefore relayable, which is not optional: a revocation has to
 outrun the trust it cancels, or a compromised key stays trusted on every device the issuer never
-synced with. There is no un-revoke — re-vouching is a fresh vouch, leaving an honest record of both
+synced with. There is no un-revoke: re-vouching is a fresh vouch, leaving an honest record of both
 decisions.
 
 ### What this deliberately does not have
 
 No appeals process (there is no server to arbitrate), no automated classification (it would be
 wrong on-device), and no deletion. The honest position is that this system
-bounds and slows abuse; it does not resolve it. Resolution stays where it belongs — with the people
+bounds and slows abuse; it does not resolve it. Resolution stays where it belongs: with the people
 who share the market.
 
 ---
@@ -769,7 +766,7 @@ on device B, so deleted rows resurrect on the next merge.
 to unlock a trial app. Under wall-clock LWW that device wins every future merge permanently.
 
 **QR sizing is a real constraint.** A voucher is 153 bytes → 209 base64url chars → QR v10 at ECC-M.
-There is a route to v8 — omit `subjectPub` and `nonce`, which the receiver already holds, and let it
+There is a route to v8: omit `subjectPub` and `nonce`, which the receiver already holds, and let it
 reconstruct the signed prefix. We deliberately don't: it makes the payload non-self-describing, so a
 voucher scanned on the wrong phone fails with "signature invalid" instead of "this was issued to
 someone else". A rejection nobody can act on is worse than a second scan attempt.
@@ -785,7 +782,7 @@ shared family phone destroys an identity built over months of vouches. The PIN i
 and defends against one thing: a borrowed or stolen handset. It does not defend against malicious
 script in the page, a compromised device, or a forensic image plus time.
 
-The recovery phrase — not the PIN — is the real backup. It is retained locally so it can be viewed
+The recovery phrase, not the PIN, is the real backup. It is retained locally so it can be viewed
 again, which adds no exposure beyond what the stored key already carries, and removes the failure
 mode where someone dismisses the phrase screen and later loses the handset.
 
@@ -793,32 +790,32 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 504 checks across ten suites, each an attack or a field failure.
+`npm run verify`: 504 checks across ten suites, each an attack or a field failure.
 
-### `verify:protocol` — 95 checks
+### `verify:protocol`: 95 checks
 
 - codec round-trips at every length; UTF-8 truncation never splits a codepoint (Nigerian names make
   this the common case, not an edge case)
 - deterministic key recovery through case and whitespace mangling
 - impersonated request rejected by proof-of-possession
 - tier tampering, subject mismatch, replay, self-vouch, expiry, future-dating
-- **rows edited directly in IndexedDB are caught** — the signature alone is not enough, because
+- **rows edited directly in IndexedDB are caught** (the signature alone is not enough, because
   columns like `tier` are denormalised out of `signedBytes`; every one is cross-checked against the
   bytes that were actually signed
 - Sybil clique of 60 fakes with 3,540 mutual vouches stays at Neighbour
 - scoring is order-independent, so two offline devices agree without communicating
 - HLC ordering, merge, and extreme-skew absorption
-- **the Nigeria-only `{state, lga}` records still verify and still match their own neighbours** —
+- **the Nigeria-only `{state, lga}` records still verify and still match their own neighbours**)
   widening a place to `{country, region, area}` touched a field inside already-signed bytes, and a
   legacy listing that stopped matching upgraded neighbours would look like sync failing rather than
   like a migration bug
 
-### `verify:sync` — 68 checks
+### `verify:sync`: 68 checks
 
 - canonical JSON refuses floats, NaN, Infinity and present-but-undefined keys
 - a listing signed by someone else, a relabelled `entityId`, a restamped HLC, an edited body and a
   non-canonical body are all rejected
-- a third party **may** relay someone else's voucher — but a forged voucher inside a validly-signed
+- a third party **may** relay someone else's voucher, but a forged voucher inside a validly-signed
   relay op is caught
 - ops survive an invalid publisher signature; one poisoned op does not discard the honest ones
 - a bundle lying about its id is rejected (seen-set poisoning / silent censorship)
@@ -828,7 +825,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - QR frames reassemble in any order, tolerate duplicates, and reset on a mixed transfer
 - an unchanged manifest costs one 304 and no bundle fetch; network failure is reported, never thrown
 
-### `verify:ledger` — 59 checks
+### `verify:ledger`: 59 checks
 
 - an entry with one signature, or a payer signature from the wrong key, is refused
 - a confirmation cannot be replayed against a different offer
@@ -838,20 +835,20 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - an Observer's twenty-offer walk-away spree completes once and is refused nineteen times
 - a third party may relay an entry, but an invented exchange inside a valid relay op is caught
 
-### `verify:deliberate` — 32 checks
+### `verify:deliberate`: 32 checks
 
 - **the tribal statement (71% agreement) ranks below the bridge statement (57%)**
 - groups recovered exactly match the planted blocs; no bloc is split
 - most-divisive surfaces the tribal statements, not the internally-contested one
-- identical and reordered input produce byte-identical results — no mirrored maps
+- identical and reordered input produce byte-identical results: no mirrored maps
 - a room in full agreement reports one group, not an invented division
 - 12 statements can support four groups; the same population on 6 cannot
 - overwriting someone else's vote row is refused; changing your mind updates rather than
   double-counts; out-of-range vote values are refused
 
-### `verify:moderation` — 54 checks
+### `verify:moderation`: 54 checks
 
-- **a unanimous 12-person bloc campaign does NOT hide a rival bloc's statement** — and the rule is
+- **a unanimous 12-person bloc campaign does NOT hide a rival bloc's statement**, and the rule is
   symmetric in both directions
 - a statement both groups independently flag IS withheld; DANGER at a lower threshold than ABUSE
 - unanimous spam and off-topic flags downrank and never hide
@@ -861,17 +858,17 @@ mode where someone dismisses the phrase screen and later loses the handset.
 - only the issuer may revoke; a forged or re-attributed revocation cannot strip standing
 - relays may carry flags and revocations, but manufactured ones are caught
 
-### `verify:anchors` — 29 checks
+### `verify:anchors`: 29 checks
 
 - an untrusted key endorsing anyone is ignored; two untrusted keys endorsing each other bootstrap
   nothing, so no cartel can form from outside the set
 - a stolen anchor key signing a retirement surfaces it and changes nothing
 - a rotation to an attacker's key is offered for confirmation, never followed
 - endorsements from trusted anchors surface as candidates that are **not** in the anchor set
-- accepting a retirement drops what that anchor rooted — measured, and exactly why it is manual
+- accepting a retirement drops what that anchor rooted: measured, and exactly why it is manual
 - relays may carry anchor actions, but manufactured ones are caught
 
-### `verify:aggregator` — 16 checks
+### `verify:aggregator`: 16 checks
 
 Runs the real CI aggregator as a subprocess and re-verifies its output with the app's verifier:
 compaction keeps only the newest op per key, forged ops never reach the snapshot, and the two
@@ -879,13 +876,13 @@ canonicalizers agree byte-for-byte.
 
 ---
 
-### `verify:invite` — 52 checks
+### `verify:invite`: 52 checks
 
 An invite is the one artefact here designed to be forwarded by strangers into group chats, so every
 check is a hostile link.
 
 - `javascript:`, `data:`, `file:`, `blob:`, `ftp:` and `vbscript:` commons addresses are refused
-- `//evil.example/commons/` looks relative and is not — it is resolved before it is judged, so it
+- `//evil.example/commons/` looks relative and is not (it is resolved before it is judged, so it
   cannot borrow the inviter's origin, and it lands flagged as cross-origin
 - an `http:` commons is refused from an `https:` page and allowed from an `http:` one, because the
   laptop-on-market-wifi case is real and the downgrade case is an attack
@@ -894,12 +891,12 @@ check is a hostile link.
 - 3,000 fuzzed links, none of which throws
 - an invite carrying twelve anchors keeps four; garbage keys are dropped; duplicates collapse
 - a link printed for GitHub Pages still resolves correctly when opened on a LAN address
-- a real invite with one anchor is 135 characters — inside the 152 that scan reliably on a cheap
+- a real invite with one anchor is 135 characters) inside the 152 that scan reliably on a cheap
   camera, which is what storing the commons address relative buys
 
 ---
 
-### `verify:firstrun` — 41 checks
+### `verify:firstrun`: 41 checks
 
 The failure guarded against here is not a crash but the app telling a user something untrue about
 their own device.
@@ -907,33 +904,33 @@ their own device.
 - a device holding 190 records is never described as empty, and a device with a source but nothing
   fetched is never told again that nothing has happened
 - reading without a key is a resting state, not an error
-- **an anchor that has vouched for nobody is called out rather than counted as success** — the
+- **an anchor that has vouched for nobody is called out rather than counted as success** (the
   deployed commons currently produces exactly this state, so a user can check a fingerprint,
   confirm it correctly, and still see 0.000
 - revoked, expired and signature-failed vouches never make a root look live
 - only the empty state may add anything to the device; every other prompt is a signpost
 - the unrooted prompt names no key and no fingerprint, and points at a person rather than a link
 - discovery resolves a fork's OWN commons on any host and base path, and an HTML page served with
-  a 200 is refused as a manifest — which is what a static host returns for a path that is not there
+  a 200 is refused as a manifest) which is what a static host returns for a path that is not there
 
 ---
 
-### `verify:translation` — 58 checks
+### `verify:translation`: 58 checks
 
 - re-attributing, editing, relabelling the language of, or retargeting a signed translation all fail
 - a translation never claims the original's id and never records the translator as its author
-- **two people rendering the same sentence differently both stand** — disagreement about meaning is
-  information, not a conflict to resolve — while one translator's own revisions collapse to their
+- **two people rendering the same sentence differently both stand** (disagreement about meaning is
+  information, not a conflict to resolve) while one translator's own revisions collapse to their
   newest, so one person cannot look like two agreeing with each other
 - the work queue is a strict subset and never a replacement feed; reading more languages shrinks the
   queue, never the feed; an untagged item is never assumed foreign
 - a withdrawn translation puts the work back in the queue
-- **the gap list and the work list never overlap** — one is what you cannot read, the other is what
+- **the gap list and the work list never overlap** (one is what you cannot read, the other is what
   you can read and have not rendered, and offering someone work in a language they do not read is
   the conflation those two functions exist to prevent
 - your own rendering removes an item from your work list; somebody else's does not
 - order is independent of arrival order, so two phones show the same thing without talking
-- 53 languages, no duplicate codes, each with its own endonym — `ha`, `yo`, `ig` and `pcm` included,
+- 53 languages, no duplicate codes, each with its own endonym) `ha`, `yo`, `ig` and `pcm` included,
   because a tag that does not match across devices is a translation nobody can find
 
 ---
@@ -983,23 +980,23 @@ composes both and knows nothing of React. Everything below `components/` runs he
 
 ## Roadmap
 
-**Task 1 — foundation.** *Complete.* Schema, identity, offline vouching, trust graph.
+**Task 1: foundation.** *Complete.* Schema, identity, offline vouching, trust graph.
 
-**Task 2 — sync.** *Complete.* Signed ops, static bundles, order-independent merge, cursor/ETag
+**Task 2: sync.** *Complete.* Signed ops, static bundles, order-independent merge, cursor/ETag
 pull, animated-QR P2P, and the GitHub Actions compute layer.
 
-**Task 3 — mutual aid.** *Complete.* Marketplace with locality and category filtering,
+**Task 3: mutual aid.** *Complete.* Marketplace with locality and category filtering,
 trust-gated listings, the two-signature settlement handshake, mutual-credit balances and
 tier-bound credit limits.
 
-**Task 4 — augmented deliberation.** *Complete.* Statement voting with no reply button, on-device
+**Task 4: augmented deliberation.** *Complete.* Statement voting with no reply button, on-device
 opinion clustering, bridge-finding, and a daily analysis pass on the CI compute layer.
 
 **Moderation.** *Complete.* Signed flags, cross-group corroboration, reader-sovereign policy, and
 issuer-only vouch revocation.
 
 **Anchor governance.** *Complete.* Anchors can sign endorsements, key rotations and retirements,
-and those propagate like any other signed record — but **nothing applies automatically**. Anchors
+and those propagate like any other signed record, but **nothing applies automatically**. Anchors
 are the axioms of the trust graph, so a network process that edited them would be using derived
 trust to choose what trust derives from: circular, and capturable in both directions (a cartel
 voting itself in, or a majority voting a rival out). Every action arrives as evidence for a decision
@@ -1009,18 +1006,18 @@ Auto-applying a retirement is the tempting exception, since removing an axiom sh
 than inflating it. It is still refused: a stolen anchor key could otherwise sign one message and
 collapse the standing of everyone that anchor ever vouched for.
 
-Bootstrapping stays out of band and must — the first anchor cannot be endorsed by an anchor you
+Bootstrapping stays out of band and must: the first anchor cannot be endorsed by an anchor you
 already trust. The app shows the human-checkable fingerprint and requires you to confirm you
 checked it against the poster, the broadcast, or the person.
 
-**First run.** *Complete.* Reading no longer requires a key — `runSync()` never did — so a cold
+**First run.** *Complete.* Reading no longer requires a key, `runSync()` never did, so a cold
 device adds the co-hosted commons in one tap, reads it as a guest, and creates an identity when it
 wants to act rather than at the door. The prompt names one action per state and refuses to imply
 standing that does not exist.
 
 **Translation.** *Protocol complete, surfaced in deliberation.* Statements carry an optional
 language tag, translations render beside the original with the language named, and anyone with a key
-can add one. Attribution is deliberately withheld inside the vote queue — that surface hides a
+can add one. Attribution is deliberately withheld inside the vote queue: that surface hides a
 statement's author so people judge the claim rather than the person, and a translator's name at the
 same moment would put one back. It is signed, it syncs, and it is shown everywhere judgement is not
 happening. The queue shows two counts that are easy to conflate and are opposites: what is **closed to you**
@@ -1042,4 +1039,4 @@ and there is no appeals process.
 
 ## Licence
 
-Not yet chosen. Intended to be copyleft — a commons that can be enclosed is not a commons.
+Not yet chosen. Intended to be copyleft: a commons that can be enclosed is not a commons.

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'How this works — The Lacinia Collective',
+  title: 'How this works · The Lacinia Collective',
   description:
     'A plain-language guide: what the Lacinia Collective is, how to join, and how helping your neighbours works when there is no company in the middle.',
 }
@@ -124,7 +124,7 @@ export default function GuidePage() {
           <div>
             <h3 className="font-display text-2xl text-paper">An hour is an hour</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-paper/75">
-              Help is counted in time. One hour of anyone&rsquo;s work is sixty credits — a
+              Help is counted in time. One hour of anyone&rsquo;s work is sixty credits: a
               lawyer&rsquo;s hour and a cleaner&rsquo;s hour are worth exactly the same. That is on
               purpose. It is a time bank, not a market.
             </p>
@@ -231,7 +231,7 @@ export default function GuidePage() {
               built it. There is no login to give anyone that power.
             </p>
             <p>
-              The closest thing is a body everybody already knows — a market association, a
+              The closest thing is a body everybody already knows: a market association, a
               co-operative, a union. Your phone can choose to take their word as a starting point. But it is
               your phone&rsquo;s choice, one by one, and you can undo it whenever you like.
             </p>
@@ -240,13 +240,13 @@ export default function GuidePage() {
             <p>
               Your twelve words bring everything back on a new phone. Without them it is gone, and
               nobody can recover it for you. That is the cost of there being no company holding your
-              account — write the words down.
+              account, so write the words down.
             </p>
           </Q>
           <Q q="Does it need internet?">
             <p>
-              Only to swap updates with people far away, and only for a moment. Everything else —
-              being introduced, posting, settling help, voting works with your data off. Two
+              Only to swap updates with people far away, and only for a moment. Everything else
+              works with your data off: being introduced, posting, settling help, voting. Two
               phones side by side need no network at all.
             </p>
           </Q>
