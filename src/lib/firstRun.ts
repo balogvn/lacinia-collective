@@ -110,7 +110,7 @@ export function promptFor(state: FirstRun): Prompt | null {
         headline: 'Your phone has not chosen anyone to trust yet',
         body:
           'Standing is worked out from a starting point you choose — a market association, a ' +
-          'mosque, a parish, a co-operative. This app ships with none, on purpose, including its ' +
+          'parish, a co-operative, a union. This app ships with none, on purpose, including its ' +
           'own author, so until you pick one there is nothing for standing to be measured from. ' +
           'Get the twelve-character fingerprint from a person or a poster, not from a link.',
         action: { label: 'Choose a starting point', href: '/identity#anchors', kind: 'link' },

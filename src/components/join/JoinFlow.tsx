@@ -239,7 +239,7 @@ export function JoinFlow() {
           </h2>
           <p className="mt-3 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper-dim">
             An anchor is a community body whose word this phone accepts as a starting point — a
-            mosque, a parish, a market association. Everyone&rsquo;s standing is worked out from
+            market association, a co-operative, a parish. Everyone&rsquo;s standing is worked out from
             there, so trusting the wrong one quietly changes what you are told about everybody.
             Without one, every score reads zero.
           </p>

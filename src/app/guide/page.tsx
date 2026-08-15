@@ -231,8 +231,8 @@ export default function GuidePage() {
               built it. There is no login to give anyone that power.
             </p>
             <p>
-              The closest thing is a body everybody already knows — a mosque, a parish, a market
-              association. Your phone can choose to take their word as a starting point. But it is
+              The closest thing is a body everybody already knows — a market association, a
+              co-operative, a parish. Your phone can choose to take their word as a starting point. But it is
               your phone&rsquo;s choice, one by one, and you can undo it whenever you like.
             </p>
           </Q>
@@ -276,7 +276,7 @@ export default function GuidePage() {
             <p>
               The link does two things when they open it. It offers to add the noticeboard, which
               is one tap. And it shows them the twelve characters that identify whoever your group
-              treats as its starting point — a market association, a parish, a mosque. That second
+              treats as its starting point — a market association, a co-operative, a parish. That second
               part they have to confirm themselves, after checking those characters with you. A
               link is not allowed to decide who someone trusts, and this one does not.
             </p>
