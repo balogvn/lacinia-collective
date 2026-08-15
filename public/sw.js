@@ -23,14 +23,26 @@
  * CRDT layer had already superseded.
  */
 
-const VERSION = 'lacinia-v2'
+const VERSION = 'lacinia-v3'
 const SHELL = `${VERSION}-shell`
 const ASSETS = `${VERSION}-assets`
 
 /** Directory this worker was served from — the app's real base. */
 const BASE = new URL('./', self.location).href
 
-const PRECACHE = [BASE, `${BASE}identity/`, `${BASE}manifest.webmanifest`]
+/*
+  Every route, not just the two we happened to think of.
+
+  Previously this held only the landing page and /identity/, while the offline
+  navigate fallback ended at `caches.match(BASE)`. The result was quiet and
+  bad: opening /join/ or /guide/ with no network served the LANDING PAGE's HTML
+  under the /join/ address, so someone handed an invite while offline — the
+  exact person this app is built for — got a page that could not act on their
+  link and gave no hint why. A wrong page with the right URL is worse than an
+  honest failure, because nothing about it suggests trying again with signal.
+*/
+const ROUTES = ['', 'identity/', 'aid/', 'deliberate/', 'guide/', 'join/']
+const PRECACHE = [...ROUTES.map((r) => `${BASE}${r}`), `${BASE}manifest.webmanifest`]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -70,8 +82,17 @@ self.addEventListener('fetch', (event) => {
           return response
         })
         .catch(async () => {
-          const cached = await caches.match(request)
-          return cached || (await caches.match(BASE)) || Response.error()
+          // Exact URL first, then this route's own shell, and only then the
+          // landing page — so a cached /aid/ is never answered with /.
+          const exact = await caches.match(request)
+          if (exact) return exact
+
+          const route = url.pathname.replace(new URL(BASE).pathname, '').split('/')[0]
+          if (route) {
+            const shell = await caches.match(`${BASE}${route}/`)
+            if (shell) return shell
+          }
+          return (await caches.match(BASE)) || Response.error()
         }),
     )
     return

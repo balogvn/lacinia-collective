@@ -21,6 +21,12 @@ interface Props {
   selfPub: PubKeyId
   myTier: TrustTier
   myLocality?: import('@/lib/db/schema').Locality
+  /**
+   * False when this device holds no key. Settling is a two-signature handshake,
+   * so offering the button to a guest would open a bench they cannot sign at —
+   * a dead control, and a worse lie than saying plainly what is missing.
+   */
+  canAct?: boolean
   onSettle: (listing: ResourceListing) => void
   onWithdraw: (listing: ResourceListing) => void
 }
@@ -44,6 +50,7 @@ export function ListingBoard({
   selfPub,
   myTier,
   myLocality,
+  canAct = true,
   onSettle,
   onWithdraw,
 }: Props) {
@@ -174,7 +181,11 @@ export function ListingBoard({
                     </p>
 
                     <div className="mt-3 flex justify-end gap-2">
-                      {mine ? (
+                      {!canAct ? (
+                        <span className="font-mono text-[9px] uppercase leading-relaxed tracking-wider text-paper/35">
+                          Make a stamp to arrange this
+                        </span>
+                      ) : mine ? (
                         <button
                           onClick={() => onWithdraw(listing)}
                           className="border border-paper/30 px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-paper-dim transition-colors hover:border-alarm hover:text-alarm"

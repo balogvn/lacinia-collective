@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 395 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 436 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -756,7 +756,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 395 checks across eight suites, each an attack or a field failure.
+`npm run verify` — 436 checks across nine suites, each an attack or a field failure.
 
 ### `verify:protocol` — 95 checks
 
@@ -862,6 +862,25 @@ check is a hostile link.
 
 ---
 
+### `verify:firstrun` — 41 checks
+
+The failure guarded against here is not a crash but the app telling a user something untrue about
+their own device.
+
+- a device holding 190 records is never described as empty, and a device with a source but nothing
+  fetched is never told again that nothing has happened
+- reading without a key is a resting state, not an error
+- **an anchor that has vouched for nobody is called out rather than counted as success** — the
+  deployed commons currently produces exactly this state, so a user can check a fingerprint,
+  confirm it correctly, and still see 0.000
+- revoked, expired and signature-failed vouches never make a root look live
+- only the empty state may add anything to the device; every other prompt is a signpost
+- the unrooted prompt names no key and no fingerprint, and points at a person rather than a link
+- discovery resolves a fork's OWN commons on any host and base path, and an HTML page served with
+  a 200 is refused as a manifest — which is what a static host returns for a path that is not there
+
+---
+
 ## Project layout
 
 ```
@@ -874,6 +893,7 @@ src/
 │   ├── moderate/            flag control, withheld panel, policy settings
 │   ├── sync/                pull/publish panel, invite composer, animated-QR send + receive
 │   ├── join/                what an invite link lands on
+│   ├── onboard/             the first-run prompt
 │   ├── qr/                  QR display and scanner
 │   ├── landing/             live in-browser handshake demo
 │   └── system/              service worker registration
@@ -882,6 +902,7 @@ src/
     ├── codec.ts             binary wire format
     ├── locality.ts          places, across the legacy and worldwide record shapes
     ├── invite.ts            invite links: build, parse, and refuse
+    ├── firstRun.ts          what to tell a device that has nothing yet
     ├── hlc.ts               hybrid logical clock
     ├── telemetry.ts         client-side structured logging
     ├── crypto/              keypairs, signing, PIN vault
@@ -893,7 +914,7 @@ src/
     ├── moderate/            flags, visibility policy, vouch revocation
     ├── sync/                canonical JSON, ops, bundles, merge, transport
     └── qr/                  render + scan
-scripts/                     eight adversarial suites, CI aggregator, analyser, seeders
+scripts/                     nine adversarial suites, CI aggregator, analyser, seeders
 ```
 
 Layering is strict: `crypto` knows nothing of Dexie, `codec` knows nothing of crypto, `vouch`
@@ -932,6 +953,11 @@ collapse the standing of everyone that anchor ever vouched for.
 Bootstrapping stays out of band and must — the first anchor cannot be endorsed by an anchor you
 already trust. The app shows the human-checkable fingerprint and requires you to confirm you
 checked it against the poster, the broadcast, or the person.
+
+**First run.** *Complete.* Reading no longer requires a key — `runSync()` never did — so a cold
+device adds the co-hosted commons in one tap, reads it as a guest, and creates an identity when it
+wants to act rather than at the door. The prompt names one action per state and refuses to imply
+standing that does not exist.
 
 **Still outstanding:** nothing from the original roadmap. What remains are the two standing
 limits — English only, and no appeals process — described under [Limits](#limits).

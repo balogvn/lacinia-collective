@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
+import { useFirstRun } from '@/hooks/useFirstRun'
+import { FirstRunPanel } from '@/components/onboard/FirstRunPanel'
 import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useDeliberation } from '@/hooks/useDeliberation'
 import { useModeration } from '@/hooks/useModeration'
@@ -23,6 +25,7 @@ export function DeliberationWorkbench() {
     commons.identity?.pubKey ?? null,
     delib.map?.status === 'ok' ? delib.map.participants : undefined,
   )
+  const firstRun = useFirstRun(!!commons.identity)
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
@@ -48,23 +51,12 @@ export function DeliberationWorkbench() {
     return <UnlockGate onUnlock={commons.unlock} />
   }
 
-  if (!commons.identity) {
-    return (
-      <section className="border border-paper/30 p-5 sm:p-7">
-        <p className="eyebrow">An identity is needed first</p>
-        <h2 className="mt-3 font-display text-3xl uppercase text-paper sm:text-4xl">
-          Votes are signed, so they need a key
-        </h2>
-        <p className="mt-3 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-wider text-paper-dim">
-          One person, one vote per statement — which only means anything if a vote can be tied to a
-          keypair. Creating one needs no email or password.
-        </p>
-        <Link href="/identity" className="btn btn-solid mt-6">
-          Create an identity →
-        </Link>
-      </section>
-    )
-  }
+  /*
+    Reading a conversation needs no key. A vote does — one person one vote only
+    means something if the vote is tied to a keypair — so the queue and the
+    composer gate themselves below while the conversation list stays open.
+  */
+  const guest = !commons.identity
 
   const active = delib.conversations.find((c) => c.id === (activeId ?? delib.conversations[0]?.id))
 
@@ -83,16 +75,27 @@ export function DeliberationWorkbench() {
 
   return (
     <div className="space-y-8">
+      <FirstRunPanel
+        state={firstRun.state}
+        onChanged={async () => {
+          await delib.refresh()
+          await commons.refresh()
+          await firstRun.refresh()
+        }}
+      />
+
       {/* ── conversation picker ── */}
       <section className="border border-paper/30">
         <div className="flex flex-wrap items-center gap-3 border-b border-paper/25 p-5">
           <p className="eyebrow">Conversations</p>
-          <button
-            onClick={() => setOpening((v) => !v)}
-            className="ml-auto font-mono text-[10px] uppercase tracking-wider text-paper-dim hover:text-paper"
-          >
-            {opening ? '− Close' : '+ Open one'}
-          </button>
+          {!guest ? (
+            <button
+              onClick={() => setOpening((v) => !v)}
+              className="ml-auto font-mono text-[10px] uppercase tracking-wider text-paper-dim hover:text-paper"
+            >
+              {opening ? '− Close' : '+ Open one'}
+            </button>
+          ) : null}
         </div>
 
         {opening ? (
@@ -179,7 +182,7 @@ export function DeliberationWorkbench() {
         )}
       </section>
 
-      {active ? (
+      {active && !guest && commons.identity ? (
         <>
           <VoteQueue
             statements={delib.statements}
@@ -215,7 +218,7 @@ export function DeliberationWorkbench() {
         </>
       ) : null}
 
-      {commons.identity ? (
+      {!guest && commons.identity ? (
         <PolicyPanel
           preset={moderation.preset}
           flags={moderation.flags}
