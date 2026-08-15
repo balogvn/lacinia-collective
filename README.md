@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 436 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 486 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -156,21 +156,37 @@ vouching people in person. A published key with no vouches confers nothing.
 Two things this build does not do. Both are decisions, not gaps, and both are shown to users on the
 identity page rather than only living here.
 
-### English only
+### One language at a time, bridged by people
 
-An earlier version tagged every listing, statement and identity with a language and offered a picker
-— English, Nigerian Pidgin, Hausa, Yorùbá, Igbo — but nothing translated and nothing filtered on it.
-The picker promised a capability that did not exist: someone posting in Hausa would reasonably
-expect Hausa speakers to find it, and nothing whatsoever would happen. A control that misleads is
-worse than an absent one, so the tags and pickers were removed rather than left as decoration.
+An early version tagged everything with a language and offered a picker while nothing translated and
+nothing filtered on it. The picker promised a capability that did not exist — post in Hausa and
+expect Hausa speakers to find it, and nothing whatsoever happened — so the tags and pickers were
+removed rather than left as decoration.
 
-Name the cost plainly: **a commons built to bridge divides, and usable in every country, currently
-speaks one language.** A Hausa statement is invisible to a Yorùbá speaker in the same
-conversation, and the bridging analysis in `deliberate/` can only cluster opinions it can read. That
-undercuts the central claim more than anything else on this page.
+They are back now, because there is finally something behind them. **A translation is a signed
+human act**: someone who reads both languages writes it, signs it with their key, and can be paid in
+time credits like anyone else doing an hour of work. It never replaces the original — it hangs
+beside it, attributed, so you can see who rendered it and what standing they hold.
 
-Records written by the earlier version still carry a `language` field. It is ignored, and it still
-verifies, because signatures cover the bytes as written.
+Two things this deliberately is not.
+
+**It is not a language filter.** Here language tracks the very divides the app exists to cross, so
+"show me only what I can read" would be ethnic filtering with a friendly label. Worse, deliberation
+ranks statements by what bridges opinion *groups* — filtering by language would partition those
+groups before the algorithm ran, and what surfaced would be consensus inside one bloc. There is no
+call anywhere in `lib/lang/` that removes content because of the language it is in. The tag exists
+to find work that needs doing, and the queue it feeds is the inverse of a filter: it shows what you
+cannot read to the people who can.
+
+**It is not machine translation.** A model small enough for a 2GB Android phone is not good enough
+to be trusted with what a neighbour said, and a translation pass in CI would put a machine in the
+middle of every sentence people exchange — in an app whose whole claim is that nothing sits between
+them. It would also be one more thing to capture: whoever ran the pass would decide what everyone
+else understood.
+
+Name the cost plainly: **this only works where a bilingual neighbour shows up.** Nothing is rendered
+until a person does it, so a commons with no bilingual members stays as divided as it was. That is a
+real limit, and it is the honest one — the alternative was an oracle.
 
 ### No appeals process
 
@@ -756,7 +772,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 436 checks across nine suites, each an attack or a field failure.
+`npm run verify` — 486 checks across ten suites, each an attack or a field failure.
 
 ### `verify:protocol` — 95 checks
 
@@ -881,6 +897,22 @@ their own device.
 
 ---
 
+### `verify:translation` — 50 checks
+
+- re-attributing, editing, relabelling the language of, or retargeting a signed translation all fail
+- a translation never claims the original's id and never records the translator as its author
+- **two people rendering the same sentence differently both stand** — disagreement about meaning is
+  information, not a conflict to resolve — while one translator's own revisions collapse to their
+  newest, so one person cannot look like two agreeing with each other
+- the work queue is a strict subset and never a replacement feed; reading more languages shrinks the
+  queue, never the feed; an untagged item is never assumed foreign
+- a withdrawn translation puts the work back in the queue
+- order is independent of arrival order, so two phones show the same thing without talking
+- 53 languages, no duplicate codes, each with its own endonym — `ha`, `yo`, `ig` and `pcm` included,
+  because a tag that does not match across devices is a translation nobody can find
+
+---
+
 ## Project layout
 
 ```
@@ -903,6 +935,7 @@ src/
     ├── locality.ts          places, across the legacy and worldwide record shapes
     ├── invite.ts            invite links: build, parse, and refuse
     ├── firstRun.ts          what to tell a device that has nothing yet
+    ├── lang/                languages, and translation as signed human work
     ├── hlc.ts               hybrid logical clock
     ├── telemetry.ts         client-side structured logging
     ├── crypto/              keypairs, signing, PIN vault
@@ -914,7 +947,7 @@ src/
     ├── moderate/            flags, visibility policy, vouch revocation
     ├── sync/                canonical JSON, ops, bundles, merge, transport
     └── qr/                  render + scan
-scripts/                     nine adversarial suites, CI aggregator, analyser, seeders
+scripts/                     ten adversarial suites, CI aggregator, analyser, seeders
 ```
 
 Layering is strict: `crypto` knows nothing of Dexie, `codec` knows nothing of crypto, `vouch`

@@ -31,6 +31,7 @@ import type {
   Flag,
   VoucherRevocation,
   AnchorAction,
+  Translation,
 } from './schema'
 import { log } from '../telemetry'
 
@@ -45,6 +46,7 @@ export class LaciniaDB extends Dexie {
   flags!: Table<Flag, string>
   revocations!: Table<VoucherRevocation, string>
   anchorActions!: Table<AnchorAction, string>
+  translations!: Table<Translation, string>
   oplog!: Table<OpLogEntry, string>
   vault!: Table<VaultRecord, string>
   meta!: Table<MetaRecord, string>
@@ -131,6 +133,15 @@ export class LaciniaDB extends Dexie {
     // set. Nothing here applies automatically; see anchor/governance.ts.
     this.version(6).stores({
       anchorActions: 'id, kind, anchorPub, targetPub, actedAt, hlc',
+    })
+
+    // v7 — translation. Signed by whoever wrote it, relayable like a flag.
+    //   translations [targetId+lang] → "has this been rendered into a language
+    //     I read", the query every displayed item runs.
+    //   translations translatorPub   → someone's own body of translation work.
+    this.version(7).stores({
+      translations:
+        'id, targetId, targetEntity, lang, translatorPub, [targetId+lang], [translatorPub+lang], hlc, deleted',
     })
 
     this.on('populate', () => log.info('db', 'database created at version 1'))

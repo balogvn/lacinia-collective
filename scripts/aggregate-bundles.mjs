@@ -195,6 +195,10 @@ function verifyOp(op) {
     const problem = verifyAttested(record, 'lacinia/anchor-action/v1', record.anchorPub)
     if (problem) return `anchor action: ${problem}`
   }
+  if (op.entity === 'translation') {
+    const problem = verifyAttested(record, 'lacinia/translation/v1', record.translatorPub)
+    if (problem) return `translation: ${problem}`
+  }
 
   // A ledger entry needs BOTH parties' signatures over identical bytes.
   // Without this check a relay could publish invented exchanges and mint
@@ -254,7 +258,7 @@ function verifyLedgerEntry(entry) {
 }
 
 /** Entities whose authority travels inside the record, so anyone may relay. */
-const RELAYABLE = new Set(['voucher', 'ledger', 'flag', 'revocation', 'anchorAction'])
+const RELAYABLE = new Set(['voucher', 'ledger', 'flag', 'revocation', 'anchorAction', 'translation'])
 
 /**
  * Mirrors verifyAttestation() in src/lib/crypto/attest.ts.

@@ -25,6 +25,7 @@ import {
   type Statement,
   type Vote,
   type Flag,
+  type Translation,
   type VoucherRevocation,
   type AnchorAction,
   TrustTier,
@@ -34,6 +35,7 @@ import {
 import { voteIdFor } from '../deliberate/ids'
 import { pickSelf } from './self'
 import { verifyFlag } from '../moderate/flag'
+import { verifyTranslation } from '../lang/translation'
 import { verifyRevocation } from '../moderate/revoke'
 import { verifyAnchorAction } from '../anchor/governance'
 import { emptyPullState, type PullState } from '../sync/transport'
@@ -665,6 +667,45 @@ export async function saveFlag(flag: Flag): Promise<void> {
   await db.transaction('rw', db.flags, db.oplog, db.meta, async () => {
     await db.flags.put(record)
     await appendOp('flag', record.id, 'put', record, hlc)
+  })
+}
+
+/* ──────────────────────────── translations ──────────────────────────── */
+
+/**
+ * Stores a translation, refusing one whose signature does not check out.
+ *
+ * The refusal matters more here than the storage does: a translation is read by
+ * exactly the people who cannot read the original, so a forged one is the one
+ * kind of forgery its audience is least able to catch.
+ */
+export async function saveTranslation(translation: Translation): Promise<void> {
+  const db = getDB()
+  if (!verifyTranslation(translation)) {
+    throw new Error('Refusing to store a translation that fails its own signature check.')
+  }
+  const hlc = translation.hlc || (await stamp())
+  const record: Translation = { ...translation, hlc }
+  await db.transaction('rw', db.translations, db.oplog, db.meta, async () => {
+    await db.translations.put(record)
+    await appendOp('translation', record.id, 'put', record, hlc)
+  })
+}
+
+export async function listTranslations(): Promise<Translation[]> {
+  return getDB().translations.filter((t) => !t.deleted).toArray()
+}
+
+/** Withdrawing a translation is a tombstone, like every other retraction here. */
+export async function withdrawTranslation(translationId: string): Promise<void> {
+  const db = getDB()
+  const existing = await db.translations.get(translationId)
+  if (!existing) return
+  const hlc = await stamp()
+  const record: Translation = { ...existing, deleted: true, hlc }
+  await db.transaction('rw', db.translations, db.oplog, db.meta, async () => {
+    await db.translations.put(record)
+    await appendOp('translation', record.id, 'put', record, hlc)
   })
 }
 
