@@ -810,7 +810,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
   legacy listing that stopped matching upgraded neighbours would look like sync failing rather than
   like a migration bug
 
-### `verify:sync`: 68 checks
+### `verify:sync`: 71 checks
 
 - canonical JSON refuses floats, NaN, Infinity and present-but-undefined keys
 - a listing signed by someone else, a relabelled `entityId`, a restamped HLC, an edited body and a
