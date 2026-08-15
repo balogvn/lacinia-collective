@@ -121,6 +121,20 @@ export async function pullFromSource(
       return result({ ...state, lastPulledAt: Date.now() }, false)
     }
     if (!response.ok) {
+      /*
+        404 is almost never a broken host. It is the app's own address pasted
+        where the commons address belongs: the two differ by one path segment
+        and look identical at a glance, so `https://host/app/` gets entered and
+        the fetch lands on `https://host/app/manifest.json`, which was never
+        going to exist. Reported as a bare status code this sends people to
+        check their network, which is the one thing that is fine.
+      */
+      if (response.status === 404) {
+        throw new TransportError(
+          'no commons is published at that address. A commons address usually ends in /commons/ — the address you open the app at is not the same one.',
+          'http',
+        )
+      }
       throw new TransportError(`manifest returned HTTP ${response.status}`, 'http')
     }
 

@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 504 adversarial checks headlessly in a few seconds. Run it first, if the
+`npm run verify` runs 507 adversarial checks headlessly in a few seconds. Run it first, if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:

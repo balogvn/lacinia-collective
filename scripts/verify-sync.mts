@@ -635,6 +635,35 @@ section('8. Transport — cursors, 304s and failure')
     'being offline is normal, not an error',
   )
 
+  // Reported from the field: someone pasted the address they open the app at
+  // instead of the commons address. The two differ by one path segment, so the
+  // fetch lands on <app>/manifest.json and 404s. A bare status code sent them
+  // to check their network, which was the one thing working.
+  const notFound = (async () => new Response('not found', { status: 404 })) as unknown as typeof fetch
+  const missing = await pullFromSource(source, emptyPullState(), { fetchImpl: notFound })
+  check('a 404 manifest is reported, not thrown', missing.errors.length === 1 && missing.fetched === 0)
+  check(
+    'a 404 says what to do about it, not just its number',
+    /commons/i.test(missing.errors[0]!) && !/HTTP 404/.test(missing.errors[0]!),
+    missing.errors[0]?.slice(0, 72),
+  )
+
+  // A URL with no trailing slash still resolves, so the message never blames
+  // the wrong thing: `.../commons` and `.../commons/` behave identically.
+  let asked = ''
+  const recordUrl = (async (u: string) => {
+    asked = String(u)
+    return new Response('{"v":1,"updatedAt":0,"entries":[]}', { status: 200 })
+  }) as unknown as typeof fetch
+  await pullFromSource({ url: 'https://h.example/a/commons', label: 'no slash' }, emptyPullState(), {
+    fetchImpl: recordUrl,
+  })
+  check(
+    'a missing trailing slash is not the problem — it is normalised',
+    asked === 'https://h.example/a/commons/manifest.json',
+    asked,
+  )
+
   const badManifest = (async () => new Response('{{{', { status: 200 })) as unknown as typeof fetch
   const malformed = await pullFromSource(source, emptyPullState(), { fetchImpl: badManifest })
   check('malformed manifest is handled', malformed.errors.length === 1)
