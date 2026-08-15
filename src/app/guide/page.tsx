@@ -73,7 +73,7 @@ export default function GuidePage() {
 
         <div className="mt-8 space-y-4 text-[17px] leading-relaxed text-paper/85">
           <p>
-            It is a way for people in the same area to help each other — lend a hand, share what
+            It is a way for people in the same area to help each other lend a hand, share what
             they have, and decide things together.
           </p>
           <p>
@@ -91,14 +91,14 @@ export default function GuidePage() {
             <h3 className="font-display text-2xl text-paper">Your phone makes you a stamp</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-paper/75">
               When you start, your phone creates a private stamp that only it has. Everything you do
-              here gets stamped, so anyone can check it really came from you — and nobody can copy
+              here gets stamped, so anyone can check it really came from you and nobody can copy
               it or pretend to be you. You never make a username or a password, because the stamp
               already is you.
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-paper/75">
               You will be shown twelve words. <strong className="text-paper">Write them on
-              paper.</strong> If your phone is lost or stolen, those words bring your stamp back on
-              a new one. Nobody can send them to you — not us, not anyone — because nobody else has
+                paper.</strong> If your phone is lost or stolen, those words bring your stamp back on
+              a new one. Nobody can send them to you not us, not anyone because nobody else has
               them.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function GuidePage() {
               the introduction is written down and cannot be faked.
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-paper/75">
-              Standing is what unlocks the more serious things — donated medicine, a shared tool,
+              Standing is what unlocks the more serious things : donated medicine, a shared tool,
               taking help before you have given any.
             </p>
           </div>
@@ -130,7 +130,7 @@ export default function GuidePage() {
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-paper/75">
               Everybody starts at zero. Help someone and you go up; receive help and you go down.
-              Being below zero is normal — it just means it is your turn to give something back.
+              Being below zero is normal; it just means it is your turn to give something back.
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function GuidePage() {
             <p>
               Open <Link href="/aid" className="underline underline-offset-4">Mutual aid</Link> and
               tap <em>Add the commons this app came with</em>. That is one tap and it needs nothing
-              from you — no name, no number, no account.
+              from you: no name, no number, no account.
             </p>
             <p>
               A commons is just a shared noticeboard: the offers, requests and conversations for an
@@ -171,7 +171,7 @@ export default function GuidePage() {
               they know you, and their phone shows a code back for you to read.
             </p>
             <p>
-              If you cannot meet, you can send the codes to each other as messages instead — but
+              If you cannot meet, you can send the codes to each other as messages instead but
               call them and read the short code aloud to each other first, so you both know who you
               are really talking to.
             </p>
@@ -185,7 +185,7 @@ export default function GuidePage() {
           <div>
             <h3 className="font-display text-xl text-paper">Ask for help, or offer it</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-paper/75">
-              Post what you can do or what you need — a bag of rice, an hour of tailoring, a lift to
+              Post what you can do or what you need: a bag of rice, an hour of tailoring, a lift to
               the clinic. When the help actually happens, the two of you settle it: one phone shows
               a code, the other agrees. Both of you have to agree, so nobody can charge you for
               something that never happened.
@@ -194,13 +194,13 @@ export default function GuidePage() {
           <div>
             <h3 className="font-display text-xl text-paper">Work out what people actually think</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-paper/75">
-              Someone asks a question — say, how the market levy should be spent. People write short
+              Someone asks a question, say, how the market levy should be spent. People write short
               statements, and everyone else just agrees or disagrees. There is no replying and no
               arguing, because there is nothing to reply to.
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-paper/75">
               The app then finds the groups that really exist and shows you the statements that{' '}
-              <strong className="text-paper">everyone agrees with</strong> — not the ones the
+              <strong className="text-paper">everyone agrees with</strong>  not the ones the
               biggest group shouted loudest about. It also shows you honestly where people are
               split.
             </p>
@@ -211,7 +211,7 @@ export default function GuidePage() {
               You can flag something abusive. But here is the important part: if only one side
               flags it, nothing happens. That is a disagreement, and disagreement already has a
               button. Something is only hidden when people from{' '}
-              <strong className="text-paper">every group</strong> object — so one side can never
+              <strong className="text-paper">every group</strong> object so one side can never
               silence the other.
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-paper/75">
@@ -227,12 +227,12 @@ export default function GuidePage() {
         <div className="mt-6 space-y-5">
           <Q q="Who is in charge?">
             <p>
-              Nobody. There is no owner, no moderator and no admin account — not even for whoever
+              Nobody. There is no owner, no moderator and no admin account, not even for whoever
               built it. There is no login to give anyone that power.
             </p>
             <p>
               The closest thing is a body everybody already knows — a market association, a
-              co-operative, a parish. Your phone can choose to take their word as a starting point. But it is
+              co-operative, a union. Your phone can choose to take their word as a starting point. But it is
               your phone&rsquo;s choice, one by one, and you can undo it whenever you like.
             </p>
           </Q>
@@ -246,7 +246,7 @@ export default function GuidePage() {
           <Q q="Does it need internet?">
             <p>
               Only to swap updates with people far away, and only for a moment. Everything else —
-              being introduced, posting, settling help, voting — works with your data off. Two
+              being introduced, posting, settling help, voting works with your data off. Two
               phones side by side need no network at all.
             </p>
           </Q>
@@ -270,27 +270,27 @@ export default function GuidePage() {
             <p>
               Open <strong>Sync</strong>, then <strong>Sources</strong>, and use{' '}
               <strong>Invite someone</strong>. You get one link. Send it however you already talk,
-              or hold the square code up to their camera — their normal camera app opens it, with
+              or hold the square code up to their camera; their normal camera app opens it, with
               nothing to install first.
             </p>
             <p>
               The link does two things when they open it. It offers to add the noticeboard, which
               is one tap. And it shows them the twelve characters that identify whoever your group
-              treats as its starting point — a market association, a co-operative, a parish. That second
+              treats as its starting point: a market association, a co-operative, a union. That second
               part they have to confirm themselves, after checking those characters with you. A
               link is not allowed to decide who someone trusts, and this one does not.
             </p>
           </Q>
           <Q q="Does it only work where I live?">
             <p>
-              It works anywhere. You pick your country and type your own area in your own words —
+              It works anywhere. You pick your country and type your own area in your own words
               town, ward, barangay, bairro, estate, whatever you actually call it. Nobody has to fit
               their home into another country&rsquo;s list of names.
             </p>
             <p>
               You are not joining a global network, though. A group is simply the people who sync
               with the same list, so what you see is your own community and not the whole world. If
-              your group wants its own noticeboard, anybody can run one — nobody needs permission,
+              your group wants its own noticeboard, anybody can run one; nobody needs permission,
               and there is nobody to ask.
             </p>
           </Q>

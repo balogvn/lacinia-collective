@@ -80,7 +80,7 @@ export interface Locality {
  * OBSERVER can read and post low-stakes offers. NEIGHBOUR is the working tier,
  * reached through peer vouches. STEWARD can vouch at full weight and unlock
  * pooled resources. ANCHOR is established out-of-band by a physical community
- * body (a church, a market association, a co-op, a union) and is the root of
+ * body (a market association, a co-op, a union, a school) and is the root of
  * the whole trust graph — the one place where offline social reality is
  * injected into the system.
  */

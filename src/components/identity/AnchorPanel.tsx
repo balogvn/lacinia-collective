@@ -135,7 +135,7 @@ export function AnchorPanel({ anchors, selfPub, keyPair, onChange }: Props) {
         <div className="border-t border-paper/25 p-5">
           <p className="max-w-2xl font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/50">
             An anchor is a community body whose word you accept as a starting point — a market
-            association, a parish, a co-operative, a union. Nothing below is applied automatically:
+            association, a co-operative, a union, a school. Nothing below is applied automatically:
             anchors are the axioms of your trust graph, and a network that could edit them would be
             deciding what everyone must believe.
           </p>

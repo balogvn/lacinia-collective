@@ -291,8 +291,8 @@ Anchors are the axioms — the only scores not derived from something else. With
 every score in the system is zero and nobody leaves Observer.
 
 They are chosen **by the device owner**, never shipped by us. A hardcoded anchor list would be a
-central authority in decentralised costume. A community body — a mosque, a parish, a market
-association, a co-operative — publishes its public key somewhere verifiable in person, and each
+central authority in decentralised costume. A community body — a market association, a
+co-operative, a union, a school — publishes its public key somewhere verifiable in person, and each
 person decides whose word roots their graph. Two people in one town may hold different anchor sets
 and compute different, equally valid scores.
 
