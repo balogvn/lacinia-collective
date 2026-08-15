@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
@@ -21,6 +21,39 @@ export function MarketWorkbench() {
   const [settling, setSettling] = useState<ResourceListing | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
   const firstRun = useFirstRun(!!commons.identity)
+  const benchRef = useRef<HTMLDivElement>(null)
+
+  /*
+    Bring the bench into view when it opens.
+
+    It renders above the listing board, so tapping Settle on a listing far down
+    the page opened it 1,300px off-screen. Nothing visibly happened, which reads
+    as a dead button rather than as a scroll position, and the one thing nobody
+    does in response is scroll up to look for what they just summoned.
+  */
+  useLayoutEffect(() => {
+    if (!benchOpen && !settling) return
+    /*
+      Synchronous, and repeated on a timer rather than a frame.
+
+      Two things defeated the obvious version. The browser's scroll anchoring
+      adds the inserted bench's own height to scrollY to keep the content under
+      your finger still, which silently undid the scroll (hence
+      overflow-anchor:none on the wrapper). And a requestAnimationFrame
+      scheduled from an effect never fired at all: the surrounding block
+      re-renders while the marketplace refreshes, the wrapper unmounts, and
+      cleanup cancels the frame before it runs. Measured: the effect ran once,
+      the callback zero times.
+
+      useLayoutEffect scrolls before paint with no frame to cancel, and the
+      short timer re-asserts it after the panels above finish resizing, which
+      was worth 118px, the height of the bench's own heading.
+    */
+    const align = () => benchRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    align()
+    const settle = setTimeout(align, 120)
+    return () => clearTimeout(settle)
+  }, [benchOpen, settling])
 
   /*
     Opened by /aid#settle, which is where the translation queue sends someone
@@ -80,7 +113,18 @@ export function MarketWorkbench() {
   )
 
   return (
-    <div className="space-y-8">
+    /*
+      overflow-anchor:none is load-bearing, not a tweak.
+
+      The bench is inserted ABOVE the listing board, and the browser's scroll
+      anchoring "helpfully" adds the inserted height to scrollY so the content
+      under your finger does not jump. Measured: our scrollIntoView landed the
+      bench at top (scrollY 828), then anchoring added 539 straight back, giving
+      1367 and a bench 539px above the fold. The scroll was working and being
+      reverted a frame later, which is why tapping Settle looked like a dead
+      button. Turning anchoring off in this subtree lets the scroll stand.
+    */
+    <div className="space-y-8 [overflow-anchor:none]">
       <FirstRunPanel
         state={firstRun.state}
         onChanged={async () => {
@@ -103,6 +147,7 @@ export function MarketWorkbench() {
           ) : null}
 
           {benchOpen || settling ? (
+            <div ref={benchRef} className="scroll-mt-4">
             <SettlementBench
               keyPair={commons.keyPair}
               balances={market.balances}
@@ -114,6 +159,7 @@ export function MarketWorkbench() {
                 setBenchOpen(false)
               }}
             />
+            </div>
           ) : (
             <button onClick={() => setBenchOpen(true)} className="btn btn-solid">
               Settle an exchange
