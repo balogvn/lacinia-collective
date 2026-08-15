@@ -11,6 +11,7 @@ import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useDeliberation } from '@/hooks/useDeliberation'
 import { useModeration } from '@/hooks/useModeration'
 import { VoteQueue } from './VoteQueue'
+import { TranslationQueue } from '@/components/lang/TranslationQueue'
 import { OpinionResults } from './OpinionResults'
 import { PolicyPanel } from '@/components/moderate/PolicyPanel'
 import { COUNTRIES } from '@/lib/data/countries'
@@ -28,6 +29,7 @@ export function DeliberationWorkbench() {
   )
   const firstRun = useFirstRun(!!commons.identity)
   const tr = useTranslations()
+  const [pinnedStatement, setPinnedStatement] = useState<string | null>(null)
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
@@ -191,6 +193,8 @@ export function DeliberationWorkbench() {
             translations={tr.translations}
             readerLangs={tr.readerLangs}
             canTranslate={!!commons.keyPair}
+            pinnedId={pinnedStatement}
+            onClearPin={() => setPinnedStatement(null)}
             onTranslate={(statementId, input) =>
               tr.translate(commons.keyPair!, {
                 targetId: statementId,
@@ -220,6 +224,17 @@ export function DeliberationWorkbench() {
               })
             }}
           />
+
+          {commons.identity ? (
+            <TranslationQueue
+              statements={delib.statements}
+              translations={tr.translations}
+              readerLangs={tr.readerLangs}
+              selfPub={commons.identity.pubKey}
+              onSetReads={tr.setReads}
+              onOpen={setPinnedStatement}
+            />
+          ) : null}
 
           {delib.map ? (
             <OpinionResults

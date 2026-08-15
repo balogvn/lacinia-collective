@@ -14,6 +14,15 @@ interface Props {
   translations: import('@/lib/db/schema').Translation[]
   readerLangs: string[]
   canTranslate: boolean
+  /**
+   * Show this statement instead of the next unvoted one.
+   *
+   * Reads from ALL statements, not just the unvoted queue: something you want
+   * to render for someone else is often something you have already voted on,
+   * and a jump that silently did nothing would be worse than no jump.
+   */
+  pinnedId?: string | null
+  onClearPin?: () => void
   onTranslate: (
     statementId: string,
     input: { lang: string; text: string; sourceLang?: string },
@@ -44,6 +53,8 @@ export function VoteQueue({
   readerLangs,
   canTranslate,
   onTranslate,
+  pinnedId,
+  onClearPin,
   myVotes,
   selfPub,
   onVote,
@@ -80,7 +91,8 @@ export function VoteQueue({
     [statements, evaluate],
   )
 
-  const current = queue[0] ?? null
+  const pinned = pinnedId ? (statements.find((s) => s.id === pinnedId) ?? null) : null
+  const current = pinned ?? queue[0] ?? null
   const done = statements.length - queue.length
 
   const submit = async () => {
@@ -125,6 +137,20 @@ export function VoteQueue({
       <div className="p-5">
         {current ? (
           <>
+            {pinned ? (
+              <div className="mb-3 flex flex-wrap items-center gap-3">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-signal">
+                  Opened from the translation queue
+                </p>
+                <button
+                  onClick={() => onClearPin?.()}
+                  className="font-mono text-[10px] uppercase tracking-wider text-paper-dim hover:text-paper"
+                >
+                  Back to voting
+                </button>
+              </div>
+            ) : null}
+
             <WithheldItem verdict={evaluate(current.id, current.authorPub)}>
               <blockquote className="min-h-[7rem] border-l-2 border-paper/40 pl-5">
                 <p className="font-display text-2xl leading-snug text-paper sm:text-3xl">

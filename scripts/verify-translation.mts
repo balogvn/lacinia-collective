@@ -15,6 +15,7 @@ import {
   verifyTranslation,
   translationsFor,
   needsTranslation,
+  translatableBy,
   MAX_TRANSLATION_CHARS,
   TRANSLATION_DOMAIN,
 } from '../src/lib/lang/translation'
@@ -233,6 +234,54 @@ section('5. Rule 3 — the queue surfaces work; it never filters')
   check(
     'a withdrawn translation puts the work back in the queue',
     needsTranslation(items, [withdrawn], ['en']).some((i) => i.id === 's1'),
+  )
+}
+
+/* ─────────────────── 5b. the work you can actually do ─────────────────── */
+
+section('5b. The gap list and the work list are inverses, not the same list')
+{
+  const items = [
+    { id: 's1', lang: 'ha' },
+    { id: 's2', lang: 'yo' },
+    { id: 's3', lang: 'en' },
+    { id: 's4' },
+  ]
+
+  // A Hausa/English reader. They cannot read the Yorùbá one; they CAN render
+  // the Hausa and English ones for someone else.
+  const gap = needsTranslation(items, [], ['ha', 'en'])
+  const work = translatableBy(items, [], ['ha', 'en'], amina.pubKeyId)
+
+  check('the gap list is what you cannot read', gap.map((i) => i.id).join(',') === 's2')
+  check('the work list is what you can read', work.map((i) => i.id).join(',') === 's1,s3')
+  check(
+    'the two lists never overlap',
+    !work.some((w) => gap.some((g) => g.id === w.id)),
+  )
+
+  // Asking someone to translate a language they do not read is the mistake this
+  // separation exists to prevent.
+  check('you are never offered work in a language you cannot read', !work.some((i) => i.lang === 'yo'))
+  check('an untagged item is in neither list', !gap.some((i) => i.id === 's4') && !work.some((i) => i.id === 's4'))
+
+  const mine = createTranslation(amina, {
+    targetId: 's1',
+    targetEntity: 'statement',
+    lang: 'en',
+    text: 'done',
+  })
+  check(
+    'your own rendering removes it from your work list',
+    !translatableBy(items, [mine], ['ha', 'en'], amina.pubKeyId).some((i) => i.id === 's1'),
+  )
+  check(
+    "…but somebody else's rendering does not — two versions may both stand",
+    translatableBy(items, [mine], ['ha', 'en'], tunde.pubKeyId).some((i) => i.id === 's1'),
+  )
+  check(
+    'withdrawing your own rendering puts the work back',
+    translatableBy(items, [{ ...mine, deleted: true }], ['ha', 'en'], amina.pubKeyId).some((i) => i.id === 's1'),
   )
 }
 

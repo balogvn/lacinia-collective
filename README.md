@@ -33,7 +33,7 @@ npm run verify
 npm run dev
 ```
 
-`npm run verify` runs 496 adversarial checks headlessly in a few seconds. Run it first — if the
+`npm run verify` runs 504 adversarial checks headlessly in a few seconds. Run it first — if the
 engines are sound, everything above them is a rendering problem.
 
 To try sync against a real static commons:
@@ -793,7 +793,7 @@ mode where someone dismisses the phrase screen and later loses the handset.
 
 ## Verification
 
-`npm run verify` — 496 checks across ten suites, each an attack or a field failure.
+`npm run verify` — 504 checks across ten suites, each an attack or a field failure.
 
 ### `verify:protocol` — 95 checks
 
@@ -918,7 +918,7 @@ their own device.
 
 ---
 
-### `verify:translation` — 50 checks
+### `verify:translation` — 58 checks
 
 - re-attributing, editing, relabelling the language of, or retargeting a signed translation all fail
 - a translation never claims the original's id and never records the translator as its author
@@ -928,6 +928,10 @@ their own device.
 - the work queue is a strict subset and never a replacement feed; reading more languages shrinks the
   queue, never the feed; an untagged item is never assumed foreign
 - a withdrawn translation puts the work back in the queue
+- **the gap list and the work list never overlap** — one is what you cannot read, the other is what
+  you can read and have not rendered, and offering someone work in a language they do not read is
+  the conflation those two functions exist to prevent
+- your own rendering removes an item from your work list; somebody else's does not
 - order is independent of arrival order, so two phones show the same thing without talking
 - 53 languages, no duplicate codes, each with its own endonym — `ha`, `yo`, `ig` and `pcm` included,
   because a tag that does not match across devices is a translation nobody can find
@@ -1019,8 +1023,11 @@ language tag, translations render beside the original with the language named, a
 can add one. Attribution is deliberately withheld inside the vote queue — that surface hides a
 statement's author so people judge the claim rather than the person, and a translator's name at the
 same moment would put one back. It is signed, it syncs, and it is shown everywhere judgement is not
-happening. **Not yet surfaced:** the work queue (`needsTranslation`) that shows untranslated items
-to the people who can read them, and translations on listings.
+happening. The queue shows two counts that are easy to conflate and are opposites: what is **closed to you**
+(written in a language you do not read, not yet rendered into one you do) and what **you could open
+for someone** (you can read it and have not rendered it). Adding a language to what you read moves
+an item from the first to the second. Reader languages are local, never published, and filter
+nothing. **Not yet surfaced:** translations on listings.
 
 **Still outstanding:** nothing from the original roadmap. What remains are the two standing
 limits described under [Limits](#limits): translation depends on a bilingual neighbour turning up,

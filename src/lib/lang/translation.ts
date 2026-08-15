@@ -185,6 +185,41 @@ export function translationsFor(
 }
 
 /**
+ * Work this reader could actually do.
+ *
+ * The counterpart to `needsTranslation`, and easy to conflate with it — they
+ * are inverses. That one lists what you CANNOT read, which is the gap in front
+ * of you. This lists what you CAN read and have not yet rendered, which is the
+ * gap you are able to close for somebody else. Showing a Yorùbá speaker a pile
+ * of Hausa statements is not a work queue; it is a list of things they are
+ * excluded from, and asking them to translate it would be absurd.
+ *
+ * "Not yet rendered" means BY YOU. Somebody else's rendering does not disqualify
+ * the item — two people may translate the same sentence differently and both
+ * stand — but your own does, or the queue would keep asking you for work you
+ * have already done.
+ */
+export function translatableBy<T extends { id: string; lang?: string }>(
+  items: readonly T[],
+  translations: readonly Translation[],
+  readerLangs: readonly string[],
+  selfPub: string,
+): T[] {
+  const reads = new Set(readerLangs)
+  const alreadyMine = new Set(
+    translations.filter((t) => !t.deleted && t.translatorPub === selfPub).map((t) => t.targetId),
+  )
+
+  return items.filter((item) => {
+    // Untagged items are never assumed to need anything — the same rule the gap
+    // list follows, for the same reason.
+    if (!item.lang) return false
+    if (!reads.has(item.lang)) return false
+    return !alreadyMine.has(item.id)
+  })
+}
+
+/**
  * Items written in a language the reader does not read, and not yet rendered
  * into one they do — the queue of bridging work waiting to be done.
  *
