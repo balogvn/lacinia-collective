@@ -51,13 +51,37 @@
   .btn {
     @apply inline-flex items-center justify-center gap-2 border border-paper/60 px-5 py-3
            font-mono text-[11px] uppercase tracking-wider text-paper
-           transition-colors duration-150 hover:bg-paper hover:text-canvas
-           disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent
-           disabled:hover:text-paper;
+           transition-colors duration-150
+           disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-solid {
-    @apply border-paper bg-paper text-canvas hover:bg-transparent hover:text-paper;
+    @apply border-paper bg-paper text-canvas;
+  }
+
+  /*
+    HOVER ONLY WHERE THERE IS A POINTER.
+    A touchscreen has no hover, so a phone applies :hover on tap and LEAVES IT
+    APPLIED until you touch something else. Every button you pressed stayed lit
+    up as though it were still selected, which was reported as "I tap disagree
+    and agree is selected too, and nothing happens" — the vote had in fact been
+    recorded both times.
+  */
+  @media (hover: hover) {
+    .btn:hover {
+      @apply bg-paper text-canvas;
+    }
+    .btn:disabled:hover {
+      @apply bg-transparent text-paper;
+    }
+    .btn-solid:hover {
+      @apply bg-transparent text-paper;
+    }
+  }
+
+  /* Touch feedback that ends when the finger lifts, unlike :hover. */
+  .btn:active:not(:disabled) {
+    @apply bg-paper/20;
   }
 
   .field {

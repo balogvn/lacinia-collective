@@ -127,7 +127,14 @@ export function VoteQueue({
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              <button onClick={() => void cast(VoteValue.Agree)} disabled={busy} className="btn btn-solid flex-1">
+              {/*
+                Deliberately NOT btn-solid. These are three peer choices, and a
+                filled Agree beside an outlined Disagree is a thumb on the
+                scale — in the one screen whose entire job is measuring what
+                people actually think. It also read as a selection state, so
+                Agree looked chosen no matter which one you pressed.
+              */}
+              <button onClick={() => void cast(VoteValue.Agree)} disabled={busy} className="btn flex-1">
                 Agree
               </button>
               <button onClick={() => void cast(VoteValue.Disagree)} disabled={busy} className="btn flex-1">
