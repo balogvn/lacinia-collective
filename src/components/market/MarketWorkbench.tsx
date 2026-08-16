@@ -56,10 +56,8 @@ export function MarketWorkbench() {
   }, [benchOpen, settling])
 
   /*
-    Opened by /aid#settle, which is where the translation queue sends someone
-    who wants to be paid for a rendering. A link that landed on this page and
-    left them to find the bench themselves would be the same broken promise the
-    copy over there used to make.
+    Opened by /aid#settle, so a link can land someone straight on the bench
+    rather than on the page with the bench somewhere below the fold.
   */
   useEffect(() => {
     if (typeof window === 'undefined') return

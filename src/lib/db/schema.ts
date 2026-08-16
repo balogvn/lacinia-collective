@@ -53,23 +53,20 @@ export interface Locality {
 }
 
 /**
- * LANGUAGE: content may be tagged, and NOTHING is ever hidden by it.
+ * LANGUAGE: this build is English-only, and does not pretend otherwise.
  *
- * An early version tagged everything with a language and offered a picker while
- * nothing translated and nothing filtered — a control that promised what it
- * could not do, so it was removed. It is back now because there is finally
- * something behind it: `Translation`, written and signed by a person who reads
- * both languages, and payable in time credits like any other work.
+ * Two attempts have now been removed. The first tagged everything with a
+ * language and offered a picker while nothing translated and nothing filtered,
+ * so the control promised a capability that did not exist. The second added
+ * peer-written translations, and was removed as out of scope.
  *
- * The tag exists to find work that needs doing, NEVER to filter. Here language
- * tracks the same divides the app exists to bridge, so "show me only what I can
- * read" would be ethnic filtering with a friendly label — and it would partition
- * the opinion groups that deliberate/ measures bridging across before the
- * algorithm ever ran. See lib/lang/translation.ts.
+ * Records from either attempt may carry `language` or `lang`, and ops may carry
+ * a `translation` entity. All of it is ignored, and all of it still verifies,
+ * because signatures cover the bytes as they were written rather than the
+ * fields this file happens to declare today.
  *
- * The field is optional and untagged content is never assumed to be foreign.
- * Records from the earlier build carry `language`; it is ignored and still
- * verifies, because signatures cover the bytes as they were written.
+ * The limitation is real and is stated in the README rather than papered over:
+ * a commons meant to bridge divides currently speaks one language.
  */
 
 /* ─────────────────────────── UserIdentity ─────────────────────────── */
@@ -255,8 +252,6 @@ export interface ResourceListing {
   category: ResourceCategory
   title: string
   description: string
-  /** What this was written in, if the author said. Finds translation work; never hides. */
-  lang?: string
   /** Cost/value in minutes. 0 means gift — outside the ledger entirely. */
   timeCredits: TimeCredits
   quantity: number
@@ -385,8 +380,6 @@ export interface Statement {
   authorPub: PubKeyId
   /** Kept short deliberately; a paragraph is an essay, not a claim to vote on. */
   text: string
-  /** What this was written in, if the author said. Used to find translation work, never to hide. */
-  lang?: string
   createdAt: number
   hlc: HLC
   deleted?: boolean
@@ -487,40 +480,6 @@ export interface Flag {
   signedBytes: string
   hlc: HLC
   /** Withdrawing a flag is a tombstone, like any other retraction. */
-  deleted?: boolean
-}
-
-/** What a translation can hang off. */
-export type TranslationTarget = 'statement' | 'listing' | 'conversation'
-
-/**
- * A translation of someone else's words, signed by whoever made it.
- *
- * NEVER REPLACES THE ORIGINAL. The original record is untouched and always
- * rendered; this hangs beside it, attributed. A translation that overwrote its
- * source would quietly make the translator the author of another person's
- * words, in a language that person may not read well enough to check.
- *
- * Self-authenticating and relayable, like vouchers and flags — a translation
- * that only reached the translator's own phone would help nobody, and the
- * signature is what stops a relay putting words in their mouth.
- */
-export interface Translation {
-  /** PRIMARY KEY — hash of the signed document. */
-  id: string
-  targetId: string
-  targetEntity: TranslationTarget
-  /** The language this renders the original INTO. */
-  lang: string
-  /** What the translator believes the original was written in, if they said. */
-  sourceLang?: string
-  text: string
-  translatorPub: PubKeyId
-  createdAt: number
-  signature: string
-  signedBytes: string
-  hlc: HLC
-  /** Withdrawing a translation is a tombstone, like any other retraction. */
   deleted?: boolean
 }
 
@@ -631,7 +590,6 @@ export type OpEntity =
   | 'flag'
   | 'revocation'
   | 'anchorAction'
-  | 'translation'
 
 /**
  * Append-only operation log. This — not the materialised tables — is what

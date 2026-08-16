@@ -112,8 +112,6 @@ export function useDeliberation(conversationId: string | null, selfPub: PubKeyId
       authorPub: PubKeyId
       conversationId: string
       text: string
-      /** What it was written in, so a bilingual neighbour can find it. */
-      lang?: string
     }) => {
       const createdAt = Date.now()
       const id = statementIdFor(input.authorPub, input.conversationId, input.text.trim(), createdAt)
@@ -122,7 +120,6 @@ export function useDeliberation(conversationId: string | null, selfPub: PubKeyId
         conversationId: input.conversationId,
         authorPub: input.authorPub,
         text: input.text.trim(),
-        ...(input.lang ? { lang: input.lang } : {}),
         createdAt,
         hlc: '',
       })

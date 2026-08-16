@@ -5,13 +5,11 @@ import { useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
-import { useTranslations } from '@/hooks/useTranslations'
 import { FirstRunPanel } from '@/components/onboard/FirstRunPanel'
 import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useDeliberation } from '@/hooks/useDeliberation'
 import { useModeration } from '@/hooks/useModeration'
 import { VoteQueue } from './VoteQueue'
-import { TranslationQueue } from '@/components/lang/TranslationQueue'
 import { OpinionResults } from './OpinionResults'
 import { PolicyPanel } from '@/components/moderate/PolicyPanel'
 import { COUNTRIES } from '@/lib/data/countries'
@@ -28,8 +26,6 @@ export function DeliberationWorkbench() {
     delib.map?.status === 'ok' ? delib.map.participants : undefined,
   )
   const firstRun = useFirstRun(!!commons.identity)
-  const tr = useTranslations()
-  const [pinnedStatement, setPinnedStatement] = useState<string | null>(null)
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
@@ -190,18 +186,6 @@ export function DeliberationWorkbench() {
         <>
           <VoteQueue
             statements={delib.statements}
-            translations={tr.translations}
-            readerLangs={tr.readerLangs}
-            canTranslate={!!commons.keyPair}
-            pinnedId={pinnedStatement}
-            onClearPin={() => setPinnedStatement(null)}
-            onTranslate={(statementId, input) =>
-              tr.translate(commons.keyPair!, {
-                targetId: statementId,
-                targetEntity: 'statement',
-                ...input,
-              })
-            }
             myVotes={delib.myVotes}
             selfPub={commons.identity.pubKey}
             evaluate={moderation.evaluate}
@@ -215,26 +199,14 @@ export function DeliberationWorkbench() {
             }
             onUnflag={moderation.dropFlag}
             onVote={delib.vote}
-            onAdd={async (text, lang) => {
+            onAdd={async (text) => {
               await delib.addStatement({
                 authorPub: commons.identity!.pubKey,
                 conversationId: active.id,
                 text,
-                ...(lang ? { lang } : {}),
               })
             }}
           />
-
-          {commons.identity ? (
-            <TranslationQueue
-              statements={delib.statements}
-              translations={tr.translations}
-              readerLangs={tr.readerLangs}
-              selfPub={commons.identity.pubKey}
-              onSetReads={tr.setReads}
-              onOpen={setPinnedStatement}
-            />
-          ) : null}
 
           {delib.map ? (
             <OpinionResults

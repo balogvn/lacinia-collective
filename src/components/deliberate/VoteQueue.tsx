@@ -4,33 +4,15 @@ import { useMemo, useState } from 'react'
 
 import { VoteValue, MAX_STATEMENT_CHARS, type FlagReason, type Statement } from '@/lib/db/schema'
 import { FlagControl } from '@/components/moderate/FlagControl'
-import { TranslationPanel } from '@/components/lang/TranslationPanel'
-import { LANGUAGES } from '@/lib/lang/languages'
 import { WithheldItem } from '@/components/moderate/WithheldItem'
 import { Visibility, type VisibilityVerdict } from '@/lib/moderate/policy'
 
 interface Props {
   statements: Statement[]
-  translations: import('@/lib/db/schema').Translation[]
-  readerLangs: string[]
-  canTranslate: boolean
-  /**
-   * Show this statement instead of the next unvoted one.
-   *
-   * Reads from ALL statements, not just the unvoted queue: something you want
-   * to render for someone else is often something you have already voted on,
-   * and a jump that silently did nothing would be worse than no jump.
-   */
-  pinnedId?: string | null
-  onClearPin?: () => void
-  onTranslate: (
-    statementId: string,
-    input: { lang: string; text: string; sourceLang?: string },
-  ) => Promise<void>
   myVotes: Map<string, VoteValue>
   selfPub: string
   onVote: (statementId: string, value: VoteValue) => Promise<void>
-  onAdd: (text: string, lang?: string) => Promise<void>
+  onAdd: (text: string) => Promise<void>
   evaluate: (targetId: string, authorPub: string) => VisibilityVerdict
   onFlag: (statementId: string, reason: FlagReason) => Promise<void>
   onUnflag: (statementId: string) => Promise<void>
@@ -49,12 +31,6 @@ interface Props {
  */
 export function VoteQueue({
   statements,
-  translations,
-  readerLangs,
-  canTranslate,
-  onTranslate,
-  pinnedId,
-  onClearPin,
   myVotes,
   selfPub,
   onVote,
@@ -66,10 +42,6 @@ export function VoteQueue({
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [composing, setComposing] = useState(false)
-  // Defaults to what the reader reads, and is theirs to change. An untagged
-  // statement is never assumed foreign, so leaving this alone costs nothing
-  // except that nobody is told it needs translating.
-  const [draftLang, setDraftLang] = useState(() => readerLangs[0] ?? 'en')
 
   // Unvoted statements first, oldest first within that — so the queue drains
   // predictably rather than reshuffling under the reader after every vote.
@@ -91,14 +63,13 @@ export function VoteQueue({
     [statements, evaluate],
   )
 
-  const pinned = pinnedId ? (statements.find((s) => s.id === pinnedId) ?? null) : null
-  const current = pinned ?? queue[0] ?? null
+  const current = queue[0] ?? null
   const done = statements.length - queue.length
 
   const submit = async () => {
     setBusy(true)
     try {
-      await onAdd(draft, draftLang)
+      await onAdd(draft)
       setDraft('')
       setComposing(false)
     } finally {
@@ -137,20 +108,6 @@ export function VoteQueue({
       <div className="p-5">
         {current ? (
           <>
-            {pinned ? (
-              <div className="mb-3 flex flex-wrap items-center gap-3">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-signal">
-                  Opened from the translation queue
-                </p>
-                <button
-                  onClick={() => onClearPin?.()}
-                  className="font-mono text-[10px] uppercase tracking-wider text-paper-dim hover:text-paper"
-                >
-                  Back to voting
-                </button>
-              </div>
-            ) : null}
-
             <WithheldItem verdict={evaluate(current.id, current.authorPub)}>
               <blockquote className="min-h-[7rem] border-l-2 border-paper/40 pl-5">
                 <p className="font-display text-2xl leading-snug text-paper sm:text-3xl">
@@ -158,22 +115,6 @@ export function VoteQueue({
                 </p>
               </blockquote>
             </WithheldItem>
-
-            {/*
-              Attribution is off here. The queue hides a statement's author so
-              people judge the claim, not the person; a translator's name at
-              the same moment would put one back.
-            */}
-            <TranslationPanel
-              targetId={current.id}
-              targetEntity="statement"
-              {...(current.lang ? { sourceLang: current.lang } : {})}
-              translations={translations}
-              readerLangs={readerLangs}
-              canWrite={canTranslate}
-              attributed={false}
-              onTranslate={(input) => onTranslate(current.id, input)}
-            />
 
             <div className="mt-4">
               <FlagControl
@@ -231,20 +172,6 @@ export function VoteQueue({
                 className="field mt-2 resize-none"
               />
             </label>
-            <label className="mt-3 block">
-              <span className="eyebrow">Written in</span>
-              <select
-                value={draftLang}
-                onChange={(e) => setDraftLang(e.target.value)}
-                className="field mt-2 text-[11px]"
-              >
-                {LANGUAGES.map((l) => (
-                  <option key={l.code} value={l.code}>
-                    {l.endonym === l.name ? l.name : `${l.endonym} — ${l.name}`}
-                  </option>
-                ))}
-              </select>
-            </label>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <span className="font-mono text-[10px] uppercase tracking-wider text-paper/40">
                 {draft.length}/{MAX_STATEMENT_CHARS}
@@ -262,8 +189,7 @@ export function VoteQueue({
             </div>
             <p className="mt-3 max-w-xl font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/45">
               Write one claim, not a paragraph. Nuance that would go in a reply has to become its own
-              statement — harder to write, impossible to brigade. Saying which language you wrote in
-              lets a bilingual neighbour find it and render it for the people who cannot read it.
+              statement — harder to write, impossible to brigade.
             </p>
           </>
         ) : (

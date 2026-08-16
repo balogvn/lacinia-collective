@@ -98,8 +98,7 @@ export default function AboutPage() {
             It was also made for places where people who need each other do not always trust each
             other, across language, faith or family lines. That is why the voting screen hides who
             wrote what, why hiding a post needs objections from people on both sides of an argument
-            rather than a loud majority, and why translating for a neighbour counts as work you can
-            be paid for.
+            rather than a loud majority.
           </p>
         </div>
 
@@ -207,9 +206,9 @@ export default function AboutPage() {
             account.
           </p>
           <p>
-            <strong className="text-paper">Nothing translates by itself.</strong> A statement in
-            Hausa stays unreadable to a Yorùbá speaker until a person who reads both writes it out.
-            The app can point at the work and pay for it, but it cannot do it.
+            <strong className="text-paper">It speaks one language.</strong> Everything here is in
+            English. A commons meant to bridge divides, in a country with hundreds of languages,
+            currently reaches the people who read one of them.
           </p>
           <p>
             <strong className="text-paper">There is nobody to appeal to.</strong> If your neighbours

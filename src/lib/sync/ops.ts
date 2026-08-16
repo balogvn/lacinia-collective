@@ -37,7 +37,6 @@ import { contentId, sign, verify, idToPubKey, type KeyPair } from '../crypto/key
 import { reverifyStoredVoucher } from '../vouch/protocol'
 import { reverifyEntry } from '../ledger/entry'
 import { verifyFlag } from '../moderate/flag'
-import { verifyTranslation } from '../lang/translation'
 import { verifyRevocation } from '../moderate/revoke'
 import { verifyAnchorAction } from '../anchor/governance'
 import {
@@ -193,16 +192,6 @@ const AUTHORIZERS: Record<
   flag: (record, op) => {
     const id = record.id
     if (typeof id !== 'string') return 'flag has no id'
-    if (id !== op.entityId) return 'entityId does not match record.id'
-    return null
-  },
-
-  // Self-authenticating and relayable. A translation that only reached the
-  // translator's own phone would help nobody — the whole point is that it
-  // crosses to the people who could not read the original.
-  translation: (record, op) => {
-    const id = record.id
-    if (typeof id !== 'string') return 'translation has no id'
     if (id !== op.entityId) return 'entityId does not match record.id'
     return null
   },
@@ -372,19 +361,6 @@ export function verifySignedOp(op: SignedOp, now = Date.now()): OpVerdict {
   // A flag carries the flagger's own signature. Without checking it, a relay
   // could manufacture flags attributed to people who never raised them — and
   // since flags drive what gets withheld, that is a censorship primitive.
-  // A translation carries the translator's own signature. Without checking it,
-  // a relay could put words in a translator's mouth — and a forged translation
-  // is uniquely nasty, because it is read by exactly the people who cannot read
-  // the original well enough to notice it is wrong.
-  if (op.entity === 'translation' && op.op === 'put') {
-    if (!verifyTranslation(record as unknown as import('../db/schema').Translation)) {
-      return reject(
-        OpRejectReason.InvalidAttestation,
-        'translation failed its own signature check',
-      )
-    }
-  }
-
   if (op.entity === 'flag' && op.op === 'put') {
     if (!verifyFlag(record as unknown as Flag)) {
       return reject(OpRejectReason.InvalidAttestation, 'flag failed its own signature check')

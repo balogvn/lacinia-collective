@@ -31,7 +31,6 @@ import type {
   Flag,
   VoucherRevocation,
   AnchorAction,
-  Translation,
 } from './schema'
 import { log } from '../telemetry'
 
@@ -46,7 +45,6 @@ export class LaciniaDB extends Dexie {
   flags!: Table<Flag, string>
   revocations!: Table<VoucherRevocation, string>
   anchorActions!: Table<AnchorAction, string>
-  translations!: Table<Translation, string>
   oplog!: Table<OpLogEntry, string>
   vault!: Table<VaultRecord, string>
   meta!: Table<MetaRecord, string>
@@ -135,14 +133,16 @@ export class LaciniaDB extends Dexie {
       anchorActions: 'id, kind, anchorPub, targetPub, actedAt, hlc',
     })
 
-    // v7 — translation. Signed by whoever wrote it, relayable like a flag.
-    //   translations [targetId+lang] → "has this been rendered into a language
-    //     I read", the query every displayed item runs.
-    //   translations translatorPub   → someone's own body of translation work.
+    // v7 created a `translations` store; v8 drops it again. Both declarations
+    // have to stay. Dexie versions are monotonic, so a device that already
+    // upgraded to 7 cannot be handed a schema that stops at 6 — it would fail
+    // to open the database rather than quietly ignore the table.
     this.version(7).stores({
       translations:
         'id, targetId, targetEntity, lang, translatorPub, [targetId+lang], [translatorPub+lang], hlc, deleted',
     })
+
+    this.version(8).stores({ translations: null })
 
     this.on('populate', () => log.info('db', 'database created at version 1'))
     this.on('blocked', () =>
