@@ -103,6 +103,101 @@ export default function AboutPage() {
           </p>
         </div>
 
+        {/* ── where it came from ── */}
+        <h2 className="mt-14 font-display text-3xl uppercase text-paper">Why the Collective</h2>
+        <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-paper/75">
+          <p>
+            Three sets of ideas built this, and they do not entirely agree with each other. Where
+            they conflict, the disagreement is usually visible in the code.
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-8">
+          <div className="border-l-2 border-signal/50 pl-5">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-signal">
+              Plurality
+            </p>
+            <h3 className="mt-1 font-display text-2xl text-paper">
+              Technology that works across difference, not around it
+            </h3>
+            <div className="mt-2 space-y-3 text-[15px] leading-relaxed text-paper/75">
+              <p>
+                <em>Plurality</em>, by Audrey Tang and Glen Weyl, argues that most social technology
+                does one of two bad things with human difference: it flattens it, pretending we are
+                all the same kind of user, or it farms it, because outrage between groups is
+                profitable. It proposes a third option. Build tools that let groups who do not agree
+                cooperate anyway, without requiring them to stop disagreeing.
+              </p>
+              <p>
+                The deliberation screen is the most direct borrowing. It follows the approach used
+                in Taiwan, where people write short statements and agree or disagree with each
+                other&rsquo;s, and the system surfaces the statements that people on opposite sides
+                both accepted. There is no reply button here for the same reason: replies reward
+                the sharpest thing you can say to someone who already disagrees with you.
+              </p>
+              <p>
+                The trust model comes from the same place. You are not one credential issued by an
+                authority. You are the sum of people who have met you and said so, which is a
+                different thing in every neighbourhood you walk into.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-l-2 border-signal/50 pl-5">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-signal">
+              Mutual aid
+            </p>
+            <h3 className="mt-1 font-display text-2xl text-paper">Solidarity, not charity</h3>
+            <div className="mt-2 space-y-3 text-[15px] leading-relaxed text-paper/75">
+              <p>
+                Mutual aid is an old idea with a precise meaning, and it is not a synonym for
+                helping people. Charity runs downhill: someone with more decides who deserves it,
+                and the person receiving is a case to be assessed. Mutual aid runs sideways.
+                Everyone gives and everyone receives, nobody applies, and nobody is means-tested.
+              </p>
+              <p>
+                That is why the ledger here always sums to zero. There are no donors and no
+                recipients, only people who are currently ahead and people who are currently
+                behind, and those swap around. It is why an hour is an hour whoever works it, and
+                why both people have to sign an exchange: nobody is given anything, and nobody is
+                owed anything until they agree they are.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-l-2 border-paper/25 pl-5">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-paper/40">
+              Effective altruism, partly
+            </p>
+            <h3 className="mt-1 font-display text-2xl text-paper">
+              Measure honestly. Do not appoint anyone to decide
+            </h3>
+            <div className="mt-2 space-y-3 text-[15px] leading-relaxed text-paper/75">
+              <p>
+                Effective altruism&rsquo;s good habit is refusing to let good intentions stand in
+                for good results. Ask whether the thing works, count it, and be willing to say
+                plainly when it does not. That habit is all over this project: every claim it makes
+                about itself has a test behind it, and the parts that do not work are written down
+                rather than quietly dropped.
+              </p>
+              <p>
+                What is deliberately not taken is the rest of it. Effective altruism tends to end
+                with a small number of clever people deciding where everyone&rsquo;s resources
+                should go, on the strength of their own analysis. This has no such seat, and could
+                not have one. There is no central pot, no allocator, and no committee that ranks
+                whose need matters most. Your neighbours decide what they owe each other, and no
+                spreadsheet overrules them.
+              </p>
+              <p>
+                Where mutual aid and effective altruism disagree, this follows mutual aid. Where
+                Plurality and either of them disagree, it follows Plurality, because the hardest
+                problem here was never how to distribute help efficiently. It was how to get people
+                who have reason to distrust each other to cooperate at all.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* ── honest limits ── */}
         <h2 className="mt-14 font-display text-3xl uppercase text-paper">What it cannot do</h2>
         <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-paper/75">
