@@ -293,7 +293,16 @@ let goodBundle: SyncBundle
   // THE CENTRAL PROPERTY: a bad publisher signature must not invalidate ops
   // that are individually authentic. Otherwise a relay could censor by
   // corrupting its own signature, and gossip would be unsafe.
-  const badPublisher = verifyBundle({ ...goodBundle, sig: goodBundle.sig.replace(/^./, 'A') })
+  /*
+    Flip to a character the signature does not already start with.
+    `replace(/^./, 'A')` looks like corruption and is a coin toss: the keypair
+    is fresh every run, so roughly one run in 64 produced a signature already
+    beginning with 'A', left the bytes untouched, and failed a check that was
+    testing nothing. It cost a CI run to find, which is the cheap version of
+    what a nondeterministic security check costs later.
+  */
+  const flipped = (goodBundle.sig[0] === 'A' ? 'B' : 'A') + goodBundle.sig.slice(1)
+  const badPublisher = verifyBundle({ ...goodBundle, sig: flipped })
   check(
     'ops survive an invalid publisher signature',
     badPublisher.accepted.length === 2 && !badPublisher.publisherValid,
