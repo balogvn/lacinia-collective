@@ -172,7 +172,19 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
 
   const onFile = async (file: File | undefined) => {
     if (!file) return
-    await ingest(await file.text())
+    try {
+      await ingest(await file.text())
+    } catch (err) {
+      // A phone can hand back something unreadable — a directory, a file the
+      // picker could not actually open, a share-sheet placeholder. Say so
+      // rather than failing silently.
+      setNotice({
+        kind: 'bad',
+        text: `Could not read ${file.name || 'that file'}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      })
+    }
   }
 
   /* ── sources ────────────────────────────────────────────────────── */
@@ -398,12 +410,28 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
               </p>
 
               <div className="mt-6">
-                <label className="btn inline-flex cursor-pointer">
+                {/*
+                  TWO THINGS HERE ARE MOBILE-SPECIFIC, AND BOTH BROKE IT.
+
+                  `accept="application/json,.json"` looks harmless and is not.
+                  Android file pickers filter by the MIME type the file manager
+                  reports, and a .json arriving through WhatsApp or Downloads is
+                  routinely reported as application/octet-stream or text/plain.
+                  The bundle then shows up greyed out and unselectable. The
+                  contents are cryptographically verified on import anyway, so
+                  restricting the picker buys nothing and costs the whole
+                  feature; a wrong file now fails with a message instead.
+
+                  And `hidden` is display:none, which several mobile browsers
+                  refuse to activate through a label — the tap does nothing at
+                  all. The input has to be rendered to be clickable, so it is
+                  hidden the accessible way instead: present, sized, invisible.
+                */}
+                <label className="btn relative inline-flex cursor-pointer">
                   Load a bundle file
                   <input
                     type="file"
-                    accept="application/json,.json"
-                    className="hidden"
+                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     onChange={(e) => void onFile(e.target.files?.[0])}
                   />
                 </label>
