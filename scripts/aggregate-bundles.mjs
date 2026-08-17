@@ -360,14 +360,19 @@ async function main() {
   const latest = new Map()
   const manifestPath = join(OUT, 'manifest.json')
   let carried = 0
-  let previousName = null
+  let previousName = []
 
   if (existsSync(manifestPath)) {
     try {
       const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
-      previousName = manifest.entries?.[0]?.path ?? null
-      if (previousName && existsSync(join(OUT, previousName))) {
-        const previous = JSON.parse(await readFile(join(OUT, previousName), 'utf8'))
+      // EVERY entry, not just the first. The snapshot is sharded once it
+      // outgrows what a client will accept in one file, and reading only
+      // entries[0] would carry a sixteenth of the commons forward and silently
+      // drop the rest on the next run.
+      previousName = (manifest.entries ?? []).map((e) => e.path)
+      for (const name of previousName) {
+        if (!existsSync(join(OUT, name))) continue
+        const previous = JSON.parse(await readFile(join(OUT, name), 'utf8'))
         for (const op of previous.ops ?? []) {
           latest.set(`${op.entity}:${op.entityId}`, op)
           carried++
@@ -420,57 +425,99 @@ async function main() {
   }
 
   const ops = [...latest.values()].sort((a, b) => (a.hlc < b.hlc ? -1 : a.hlc > b.hlc ? 1 : 0))
-  const snapshot = {
-    v: 1,
-    id: contentId(new TextEncoder().encode(canonicalize(ops.map((o) => o.id)))),
-    publisher: '',
-    // DETERMINISTIC, NOT Date.now(). The filename is a content address, which
-    // promises the file is immutable — and the transport layer caches it
-    // forever on that promise. A wall clock inside the body breaks it: two runs
-    // over identical ops would write DIFFERENT bytes to the SAME filename, so
-    // every device would keep serving whichever version it cached first.
-    //
-    // It also made the daily cron commit a diff even when nothing changed,
-    // filling main with noise forever. The snapshot is a compaction artifact,
-    // not a published-at claim; its ops each carry their own HLC.
-    createdAt: 0,
-    opCount: ops.length,
-    hlcMin: ops[0]?.hlc ?? '',
-    hlcMax: ops[ops.length - 1]?.hlc ?? '',
-    ops,
-    // The aggregator holds no key, and deliberately should not: a CI secret
-    // that signs on behalf of the commons would be a central authority with a
-    // single point of compromise. Clients ignore the publisher signature for
-    // authorization anyway — every op is verified individually.
-    sig: '',
+
+  /*
+    SHARDING, AND WHY IT IS BY HLC RANGE.
+
+    A client refuses any bundle over MAX_OPS_PER_BUNDLE (2,000) or
+    MAX_BUNDLE_BYTES (2MB) — see src/lib/sync/bundle.ts. The snapshot IS a
+    bundle, and this aggregator used to emit exactly one of them with no cap, so
+    op number 2,001 would have made every device reject the entire commons on
+    every pull, forever. Not degraded: nothing merges at all. That is reached by
+    ordinary growth, not only by an attacker.
+
+    The shards are CONTIGUOUS RANGES OF THE HLC-SORTED OPS, which is not an
+    arbitrary choice. selectNewEntries (bundle.ts) skips any entry whose hlcMax
+    is at or below the device's cursor. Shard by id prefix and every shard spans
+    the whole time range, so fetching one advances the cursor past the rest and
+    a device silently never downloads them — most of the commons, gone, with no
+    error anywhere. Contiguous ranges keep each shard's hlcMax disjoint and
+    ascending, which is exactly what that filter was written for.
+
+    It is also the cache-friendly split. New ops carry a fresh HLC and land in
+    the LAST shard, so the earlier ones keep their bytes and their content
+    address, and a returning device re-downloads only the tail.
+  */
+  const SHARD_MAX_OPS = 1_500
+  const SHARD_MAX_BYTES = 1_500_000
+
+  function shardOps(all) {
+    if (all.length === 0) return [[]]
+    const shards = []
+    let current = []
+    let bytes = 0
+    for (const op of all) {
+      const size = JSON.stringify(op).length + 1
+      if (current.length > 0 && (current.length + 1 > SHARD_MAX_OPS || bytes + size > SHARD_MAX_BYTES)) {
+        shards.push(current)
+        current = []
+        bytes = 0
+      }
+      current.push(op)
+      bytes += size
+    }
+    shards.push(current)
+    return shards
   }
 
-  const snapshotText = JSON.stringify(snapshot)
-  const outName = snapshotName(snapshot.id)
-  await writeFile(join(OUT, outName), snapshotText)
+  function buildSnapshot(shardOpsList) {
+    return {
+      v: 1,
+      id: contentId(new TextEncoder().encode(canonicalize(shardOpsList.map((o) => o.id)))),
+      publisher: '',
+      createdAt: 0,
+      opCount: shardOpsList.length,
+      hlcMin: shardOpsList[0]?.hlc ?? '',
+      hlcMax: shardOpsList[shardOpsList.length - 1]?.hlc ?? '',
+      ops: shardOpsList,
+      sig: '',
+    }
+  }
+
+  const shards = shardOps(ops)
+  const written = []
+
+  for (const shard of shards) {
+    const snapshot = buildSnapshot(shard)
+    const text = JSON.stringify(snapshot)
+    const name = snapshotName(snapshot.id)
+    await writeFile(join(OUT, name), text)
+    written.push({
+      path: name,
+      id: snapshot.id,
+      hlcMax: snapshot.hlcMax,
+      opCount: snapshot.opCount,
+      bytes: Buffer.byteLength(text),
+    })
+  }
 
   const manifest = {
     v: 1,
-    // Also deterministic — see the note on snapshot.createdAt. Nothing reads
-    // this; devices detect change via the ETag on the manifest and the content
-    // address of the snapshot, both of which move only when content moves.
+    // Deterministic, like the snapshot bodies — see the note on createdAt.
+    // Nothing reads it; devices detect change via the manifest ETag and the
+    // content address of each shard, both of which move only when content does.
     updatedAt: 0,
-    entries: [
-      {
-        path: outName,
-        id: snapshot.id,
-        hlcMax: snapshot.hlcMax,
-        opCount: snapshot.opCount,
-        bytes: Buffer.byteLength(snapshotText),
-      },
-    ],
+    // Ascending by hlcMax, which is the order selectNewEntries sorts into and
+    // the order a device must apply them in to keep its cursor honest.
+    entries: written,
   }
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2))
 
   // Prune superseded snapshots, keeping a few so a client that read the old
   // manifest seconds ago can still complete its fetch.
+  const current = new Set(written.map((e) => e.path))
   const stale = (await readdir(OUT))
-    .filter((f) => /^snapshot-[0-9a-f]+\.json$/.test(f) && f !== outName)
+    .filter((f) => /^snapshot-[0-9a-f]+\.json$/.test(f) && !current.has(f))
     .sort()
   for (const file of stale.slice(0, Math.max(0, stale.length - (SNAPSHOTS_TO_KEEP - 1)))) {
     await rm(join(OUT, file))
@@ -484,13 +531,17 @@ async function main() {
     for (const file of files) await rm(join(INBOX, file))
   }
 
-  const kb = (Buffer.byteLength(snapshotText) / 1024).toFixed(1)
+  const totalBytes = written.reduce((n, e) => n + e.bytes, 0)
+  const kb = (totalBytes / 1024).toFixed(1)
   console.log(`lacinia aggregate — ${Date.now() - started}ms`)
   console.log(`  inbox bundles   ${files.length}`)
   console.log(`  ops seen        ${seen}`)
   console.log(`  ops applied     ${accepted}`)
   console.log(`  carried forward ${carried}`)
-  console.log(`  snapshot        ${snapshot.opCount} ops, ${kb} KB`)
+  console.log(
+    `  snapshot        ${ops.length} ops, ${kb} KB` +
+      (written.length > 1 ? ` across ${written.length} shards` : ''),
+  )
   if (rejections.length) {
     console.log(`  rejected        ${rejections.length}`)
     for (const r of rejections.slice(0, 25)) console.log(`    · ${r}`)

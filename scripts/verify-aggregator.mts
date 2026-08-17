@@ -23,7 +23,12 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { createSignedOp, verifySignedOp, type SignedOp } from '../src/lib/sync/ops'
-import { createBundle, verifyBundle } from '../src/lib/sync/bundle'
+import {
+  createBundle,
+  verifyBundle,
+  MAX_OPS_PER_BUNDLE,
+  MAX_BUNDLE_BYTES,
+} from '../src/lib/sync/bundle'
 import { canonicalize } from '../src/lib/sync/canonical'
 import { generateEphemeralKeyPair } from '../src/lib/crypto/keys'
 import { createClock, now as hlcNow } from '../src/lib/hlc'
@@ -286,6 +291,36 @@ for (const file of (await readdir(OUT)).filter((f) => /^snapshot-[0-9a-f]+\.json
 if (savedSnapshot !== null && priorPath !== null) await writeFile(priorPath, savedSnapshot)
 if (savedManifest !== null) await writeFile(MANIFEST, savedManifest)
 else await rm(MANIFEST, { force: true })
+
+/* ─────────────── the 2,000-op cliff ─────────────── */
+
+console.log(`\n${BOLD}Sharding — a growing commons must not become unreadable${RESET}`)
+{
+  // The snapshot IS a bundle, and a client refuses any bundle over
+  // MAX_OPS_PER_BUNDLE. Emitting one unbounded snapshot meant op number 2,001
+  // killed sync for every device forever, reached by ordinary growth.
+  const manifestNow = JSON.parse(await readFile(MANIFEST, 'utf8'))
+  check(
+    'every manifest entry stays under the client\u2019s op ceiling',
+    manifestNow.entries.every((e: { opCount: number }) => e.opCount <= MAX_OPS_PER_BUNDLE),
+    `largest ${Math.max(...manifestNow.entries.map((e: { opCount: number }) => e.opCount))} of ${MAX_OPS_PER_BUNDLE}`,
+  )
+  check(
+    'every manifest entry stays under the client\u2019s byte ceiling',
+    manifestNow.entries.every((e: { bytes: number }) => e.bytes <= MAX_BUNDLE_BYTES),
+  )
+
+  // Shards must be contiguous ASCENDING hlc ranges. selectNewEntries skips any
+  // entry at or below the cursor, so shards that overlapped in time would be
+  // silently skipped after the first fetch — most of the commons, gone, with no
+  // error raised anywhere.
+  const maxima = manifestNow.entries.map((e: { hlcMax: string }) => e.hlcMax)
+  check(
+    'shards are ordered by hlc, so a cursor never skips one',
+    maxima.every((h: string, i: number) => i === 0 || h > maxima[i - 1]!),
+    maxima.length === 1 ? 'single shard' : `${maxima.length} shards ascending`,
+  )
+}
 
 console.log(`\n${BOLD}${'─'.repeat(64)}${RESET}`)
 if (failed === 0) {
