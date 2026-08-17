@@ -149,6 +149,34 @@ const OWNER_FIELD = {
   vote: 'authorPub',
 }
 
+/**
+ * The primary key each entity is filed under.
+ *
+ * Compaction keys on `${entity}:${entityId}`, so an op whose entityId names
+ * SOMEBODY ELSE'S record takes their slot. The client refuses that for all nine
+ * entity types (see the authorizers in src/lib/sync/ops.ts, whose comment on
+ * `vote` spells out why). This file reimplements the authorization table by
+ * hand — deliberately, so it stays dependency-free and rewritable in another
+ * language — and it had drifted: the check was simply missing here.
+ *
+ * Without it, a valid signature over a record you legitimately own, filed under
+ * a victim's entityId with a high HLC, evicts the victim's record from the
+ * published snapshot and pins the slot so no later honest update can win it.
+ * Signed, authorized, and a deletion primitive.
+ */
+const ID_FIELD = {
+  identity: 'pubKey',
+  voucher: 'id',
+  listing: 'id',
+  ledger: 'id',
+  conversation: 'id',
+  statement: 'id',
+  vote: 'id',
+  flag: 'id',
+  revocation: 'id',
+  anchorAction: 'id',
+}
+
 function verifyOp(op) {
   if (!op || typeof op.sig !== 'string' || typeof op.body !== 'string') return 'malformed'
   if (op.op !== 'put' && op.op !== 'tombstone') return 'bad op kind'
@@ -160,6 +188,13 @@ function verifyOp(op) {
     return 'body is not JSON'
   }
   if (canonicalize(record) !== op.body) return 'body is not canonical'
+
+  // An op must be filed under its own record's key. See ID_FIELD.
+  const idField = ID_FIELD[op.entity]
+  if (!idField) return `unknown entity "${op.entity}"`
+  if (record[idField] !== op.entityId) {
+    return `entityId does not match record.${idField}`
+  }
 
   const doc = new TextEncoder().encode(signedDocument(op))
   try {

@@ -127,8 +127,28 @@ const superseded = createSignedOp(author, {
 // Mallory signs a listing that claims `author` as its owner.
 const forged = op('agg-3', 'Impersonated offer', author, mallory)
 
+/*
+  THE EVICTION. Mallory signs a listing she legitimately owns and files it under
+  SOMEBODY ELSE'S entityId. Ownership passes (the record really is hers), the
+  signature is real, the body is canonical. Compaction keys on
+  `${entity}:${entityId}`, so with a high HLC this op takes agg-1's slot and
+  drops the real listing out of the published snapshot — where no later honest
+  update can win it back, because the slot is pinned at a future stamp.
+
+  The client refuses this for every entity type. The aggregator hand-reimplements
+  that table and had drifted, so it did not.
+*/
+const evictionHlc = hlcNow(clock)
+const eviction = createSignedOp(mallory, {
+  hlc: evictionHlc,
+  entity: 'listing',
+  entityId: 'agg-1',
+  op: 'put',
+  record: listing('mallory-own-id', 'Evicts someone else', evictionHlc, mallory),
+})
+
 const bundleA = createBundle(author, [first, second])
-const bundleB = createBundle(other, [superseded, forged])
+const bundleB = createBundle(other, [superseded, forged, eviction])
 
 await writeFile(join(INBOX, 'test-a.json'), JSON.stringify(bundleA))
 await writeFile(join(INBOX, 'test-b.json'), JSON.stringify(bundleB))
@@ -148,9 +168,24 @@ try {
 check('aggregator runs without error', stdout.includes('lacinia aggregate'), stdout.trim().split('\n')[0])
 check('aggregator rejected the forged op', stdout.includes('only the owner may write a listing'))
 
+check(
+  'an op filed under someone else\u2019s entityId is refused',
+  stdout.includes('entityId does not match record.id'),
+  'signed, owned, and still a deletion primitive',
+)
+
 const producedPath = (await snapshotPath())!
 const snapshotText = await readFile(producedPath, 'utf8')
 const snapshot = JSON.parse(snapshotText)
+
+check(
+  '\u2026so the victim\u2019s listing survives in the snapshot',
+  snapshot.ops.some(
+    (o: { entityId: string; body: string }) =>
+      o.entityId === 'agg-1' && JSON.parse(o.body).authorPub === author.pubKeyId,
+  ),
+  'agg-1 still belongs to its author',
+)
 
 check(
   'snapshot filename is content-addressed',
