@@ -24,8 +24,18 @@ export function ServiceWorkerRegistrar() {
       // app would then appear to work and silently have no offline mode.
       const base = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
       navigator.serviceWorker
-        .register(`${base}/sw.js`, { scope: `${base}/` })
-        .then((reg) => log.info('sync', 'service worker registered', { scope: reg.scope }))
+        // updateViaCache:'none' stops the browser serving sw.js itself from
+        // its HTTP cache, which is how a worker keeps re-installing the same
+        // stale generation for hours after a deploy.
+        .register(`${base}/sw.js`, { scope: `${base}/`, updateViaCache: 'none' })
+        .then((reg) => {
+          log.info('sync', 'service worker registered', { scope: reg.scope })
+          // Ask on every load. Without it the browser checks on its own
+          // schedule, and a device can sit on a shell whose scripts no longer
+          // exist on the host with no way for the app to notice or recover.
+          void reg.update()
+          return reg
+        })
         .catch((err) => log.warn('sync', 'service worker registration failed', { error: String(err) }))
     }
 

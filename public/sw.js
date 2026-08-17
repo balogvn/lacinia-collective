@@ -23,7 +23,7 @@
  * CRDT layer had already superseded.
  */
 
-const VERSION = 'lacinia-v3'
+const VERSION = 'lacinia-v4'
 const SHELL = `${VERSION}-shell`
 const ASSETS = `${VERSION}-assets`
 
@@ -98,6 +98,22 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  /*
+    WHY THE VERSION IS BUMPED ON EVERY DEPLOY THAT CHANGES THE BUNDLE.
+
+    Navigation is network-first with a cache fallback, which is right for a
+    phone that is offline half the time. The failure it allows is subtle and
+    total: on a flaky connection the fetch loses, the worker serves the OLD
+    cached HTML, and that HTML names JavaScript chunks by content hash. The new
+    deploy has different hashes and the old files are gone from the host, so
+    the page paints and the script never boots. Every button is dead and
+    nothing explains why, because as far as the browser is concerned the page
+    loaded fine.
+
+    Bumping VERSION makes `activate` drop every cache from the previous
+    generation, so the stale shell and its missing chunks go together rather
+    than one outliving the other.
+  */
   if (/\.(js|css|woff2?|png|svg|webmanifest|ico)$/.test(url.pathname)) {
     event.respondWith(
       caches.open(ASSETS).then(async (cache) => {
