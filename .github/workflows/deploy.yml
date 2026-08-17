@@ -7,7 +7,18 @@ name: Deploy to Pages
 on:
   push:
     branches: [main]
+    # An inbox write must not rebuild the site. The aggregate workflow picks it
+    # up, merges it, and calls this workflow itself when the snapshot changes,
+    # so a rebuild here would be a duplicate of a deploy that is already coming.
+    paths-ignore:
+      - 'commons/inbox/**'
   workflow_dispatch:
+  # Called by aggregate.yml. Pushes made with the default GITHUB_TOKEN do not
+  # trigger workflows — GitHub refuses, to stop a job re-triggering itself — so
+  # the aggregator's snapshot commit reached main and never reached Pages. A
+  # reusable call closes that without a personal access token: no long-lived
+  # secret, and nothing new that can write to this repository.
+  workflow_call:
 
 permissions:
   contents: read
@@ -25,7 +36,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # ALWAYS main, never the triggering sha.
+      #
+      # When aggregate.yml calls this workflow, the default checkout resolves
+      # to the caller's sha — which is the commit BEFORE the aggregator pushed
+      # its snapshot. The deploy would faithfully publish the state from just
+      # before the merge, so the fix for the missing deploy would itself have
+      # published nothing new. This workflow only ever serves main, so naming
+      # it is both correct and the simplest thing that cannot drift.
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:

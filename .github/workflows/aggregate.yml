@@ -26,6 +26,8 @@ concurrency:
 jobs:
   aggregate:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -52,12 +54,14 @@ jobs:
         run: npm run analyse
 
       - name: Commit snapshot
+        id: commit
         run: |
           git config user.name  'lacinia-aggregator'
           git config user.email 'aggregator@users.noreply.github.com'
           git add public/commons commons/inbox
           if git diff --staged --quiet; then
             echo 'No change to the commons.'
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "commons: aggregate $(date -u +%Y-%m-%d)"
@@ -65,3 +69,24 @@ jobs:
           # must not be discarded.
           git pull --rebase --autostash
           git push
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+
+  # Publish what was just merged.
+  #
+  # Without this the snapshot reached main and stopped there: a push made with
+  # the default GITHUB_TOKEN does not trigger another workflow, so deploy.yml
+  # never ran for an aggregator commit. Confirmed on this repository — commit
+  # e628e57 has no deploy run against its sha. The live commons only moved when
+  # some unrelated push happened to deploy afterwards, which made merged
+  # bundles look published while the site served the old snapshot.
+  #
+  # Skipped when nothing changed, so the daily cron on a quiet commons costs a
+  # single 30-second job rather than a full site rebuild.
+  publish:
+    needs: aggregate
+    if: needs.aggregate.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml
