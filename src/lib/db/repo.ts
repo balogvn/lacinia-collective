@@ -739,6 +739,30 @@ export async function listAnchorActions(): Promise<AnchorAction[]> {
 
 /* ──────────────────────────── sync ──────────────────────────── */
 
+const RELAY_KEY = 'sync.relay'
+
+/**
+ * Optional relay address, held locally and never published.
+ *
+ * A relay is a mailbox, not an authority: it accepts an already-signed bundle
+ * and puts it where the commons is assembled. It holds no key and can mint
+ * nothing, so a hostile one can drop what you send but cannot alter it — the
+ * same standing as any sync source. The file and QR paths keep working if it
+ * is unset, unreachable, or lying.
+ */
+export async function getRelayUrl(): Promise<string | null> {
+  const row = await getDB().meta.get(RELAY_KEY)
+  return typeof row?.value === 'string' && row.value ? row.value : null
+}
+
+export async function setRelayUrl(url: string | null): Promise<void> {
+  if (!url) {
+    await getDB().meta.delete(RELAY_KEY)
+    return
+  }
+  await getDB().meta.put({ key: RELAY_KEY, value: url })
+}
+
 const SYNC_STATE_PREFIX = 'sync.state.'
 const SYNC_SOURCES_KEY = 'sync.sources'
 

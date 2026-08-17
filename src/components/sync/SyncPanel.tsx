@@ -13,13 +13,15 @@ import {
   type OutboundBundle,
   type SyncRunReport,
 } from '@/lib/sync/service'
-import { downloadBundle } from '@/lib/sync/transport'
+import { downloadBundle, pushToRelay } from '@/lib/sync/transport'
 import {
   getSyncSources,
   saveSyncSource,
   removeSyncSource,
   unsyncedOps,
   getPullState,
+  getRelayUrl,
+  setRelayUrl,
 } from '@/lib/db/repo'
 import type { PubKeyId, SyncSourceRecord } from '@/lib/db/schema'
 import type { KeyPair } from '@/lib/crypto/keys'
@@ -69,6 +71,8 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
   const [newUrl, setNewUrl] = useState('')
   const [newLabel, setNewLabel] = useState('')
   const [showFrames, setShowFrames] = useState(false)
+  const [relay, setRelay] = useState('')
+  const [relaySaved, setRelaySaved] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     const list = await getSyncSources()
@@ -80,6 +84,9 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
       if (state.lastPulledAt && (!newest || state.lastPulledAt > newest)) newest = state.lastPulledAt
     }
     setLastPulled(newest)
+    const saved = await getRelayUrl()
+    setRelaySaved(saved)
+    setRelay((current) => current || saved || '')
   }, [])
 
   useEffect(() => {
@@ -138,6 +145,55 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
     await confirmOutboundSent(outbound)
     await refresh()
     setNotice({ kind: 'ok', text: 'Bundle saved. Attach it to a pull request, or send it however you already talk.' })
+  }
+
+  /*
+    The relay is the only push path that needs no file handling, which is the
+    whole reason it exists: exporting JSON and getting it into a repository is
+    not something most people can be asked to do. It is still opt-in and still
+    fails soft — the file and QR paths are unchanged and remain the ones that
+    work with no infrastructure at all.
+  */
+  const sendToRelay = async () => {
+    if (!outbound || !relaySaved) return
+    setBusy(true)
+    setNotice(null)
+    try {
+      const result = await pushToRelay(relaySaved, outbound.bundle)
+      if (result.ok) {
+        // Only mark the ops as sent when the relay actually took them.
+        // Marking on a failed POST would strand them: never published, and
+        // never offered again.
+        await confirmOutboundSent(outbound)
+        setOutbound(null)
+        await refresh()
+      }
+      setNotice({ kind: result.ok ? 'ok' : 'bad', text: result.detail })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const saveRelay = async () => {
+    const trimmed = relay.trim()
+    if (trimmed) {
+      try {
+        const url = new URL(trimmed)
+        if (url.protocol !== 'https:' && url.hostname !== 'localhost') {
+          setNotice({ kind: 'bad', text: 'A relay must be https, so what you send cannot be read or altered on the way.' })
+          return
+        }
+      } catch {
+        setNotice({ kind: 'bad', text: 'That is not a valid web address.' })
+        return
+      }
+    }
+    await setRelayUrl(trimmed || null)
+    await refresh()
+    setNotice({
+      kind: 'ok',
+      text: trimmed ? 'Relay saved. Publishing can now send straight there.' : 'Relay removed.',
+    })
   }
 
   const copyBundle = async () => {
@@ -384,6 +440,35 @@ export function SyncPanel({ keyPair, anchors, onMerged }: Props) {
                 <button onClick={copyBundle} disabled={!outbound} className="btn">
                   Copy as text
                 </button>
+                {relaySaved ? (
+                  <button onClick={() => void sendToRelay()} disabled={!outbound || busy} className="btn">
+                    {busy ? 'Sending…' : 'Send to the commons'}
+                  </button>
+                ) : null}
+              </div>
+
+              {/* ── the relay, opt-in ── */}
+              <div className="mt-6 border-t border-paper/20 pt-5">
+                <span className="eyebrow">Send straight to the commons</span>
+                <p className="mt-2 max-w-lg font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/50">
+                  A relay is a postbox, not an owner. It takes a bundle you already signed and puts
+                  it where the commons is assembled. It holds no key, so it can drop what you send
+                  but cannot change a word of it — the same standing as any address you sync from.
+                  Leave this empty and nothing changes: the file and the code above still work with
+                  no infrastructure at all.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+                  <input
+                    value={relay}
+                    onChange={(e) => setRelay(e.target.value)}
+                    spellCheck={false}
+                    placeholder="https://…/relay"
+                    className="field text-[11px]"
+                  />
+                  <button onClick={() => void saveRelay()} className="btn">
+                    {relaySaved ? 'Update' : 'Save relay'}
+                  </button>
+                </div>
               </div>
 
               <p className="mt-5 max-w-lg border-l border-paper/25 pl-4 font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/45">

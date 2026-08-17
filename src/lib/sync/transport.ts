@@ -241,7 +241,18 @@ export async function pushToRelay(
     log.info('sync', 'bundle pushed to relay', { id: bundle.id.slice(0, 12) })
     return { ok: true, detail: `Sent ${bundle.opCount} updates.` }
   } catch (err) {
-    return { ok: false, detail: err instanceof Error ? err.message : String(err) }
+    /*
+      A raw "Failed to fetch" is what the browser says and it means nothing to
+      the person reading it — and this path exists precisely for people who
+      should never have to handle a file. The cause is almost always the same
+      three things, so name them and say the reassuring part: nothing was lost.
+    */
+    log.warn('sync', 'relay push failed', { error: String(err) })
+    return {
+      ok: false,
+      detail:
+        'Could not reach the relay. It may be offline, the address may be wrong, or this phone may have no signal. Nothing was lost — your updates are still here and you can send them again, or save the file instead.',
+    }
   }
 }
 

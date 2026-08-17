@@ -56,8 +56,13 @@ function check(name: string, condition: boolean, detail = ''): void {
 }
 
 const ROOT = process.cwd()
-const INBOX = join(ROOT, 'commons', 'inbox')
-const OUT = join(ROOT, 'public', 'commons')
+// A scratch workspace, never the live commons. Reading the real inbox meant a
+// pending bundle changed the fixtures and failed the suite — and the aggregate
+// workflow verifies before it aggregates, so that was a way for anyone's
+// submission to stop the commons merging.
+const WORK = join(ROOT, '.aggregator-test')
+const INBOX = join(WORK, 'inbox')
+const OUT = join(WORK, 'out')
 const MANIFEST = join(OUT, 'manifest.json')
 
 /** Snapshot filenames are content-addressed; the manifest is the only index. */
@@ -107,15 +112,12 @@ function op(id: string, title: string, owner = author, signer = owner): SignedOp
 
 console.log(`\n${BOLD}Cross-implementation: TypeScript app ⇄ plain-JS aggregator${RESET}`)
 
-// Preserve anything already on disk so running the suite is non-destructive.
-const priorPath = await snapshotPath()
-const savedSnapshot = priorPath ? await readFile(priorPath, 'utf8') : null
-const savedManifest = existsSync(MANIFEST) ? await readFile(MANIFEST, 'utf8') : null
-
+// The workspace is scratch: wiped before, built fresh, wiped after. Nothing
+// here can touch the live commons, and nothing waiting in the real inbox can
+// change what these fixtures measure.
+await rm(WORK, { recursive: true, force: true })
 await mkdir(INBOX, { recursive: true })
 await mkdir(OUT, { recursive: true })
-if (priorPath) await rm(priorPath)
-if (existsSync(MANIFEST)) await rm(MANIFEST)
 
 /* ── build two bundles, one carrying a forgery and a superseded edit ── */
 
@@ -163,6 +165,7 @@ await writeFile(join(INBOX, 'test-b.json'), JSON.stringify(bundleB))
 let stdout = ''
 try {
   stdout = execFileSync('node', ['scripts/aggregate-bundles.mjs'], {
+    env: { ...process.env, LACINIA_INBOX: INBOX, LACINIA_OUT: OUT },
     cwd: ROOT,
     encoding: 'utf8',
   })
@@ -267,7 +270,11 @@ check(
 /* ── carry-forward: a second run must not lose state ── */
 
 const before = snapshot.opCount
-execFileSync('node', ['scripts/aggregate-bundles.mjs'], { cwd: ROOT, encoding: 'utf8' })
+execFileSync('node', ['scripts/aggregate-bundles.mjs'], {
+  cwd: ROOT,
+  encoding: 'utf8',
+  env: { ...process.env, LACINIA_INBOX: INBOX, LACINIA_OUT: OUT },
+})
 const afterPath = (await snapshotPath())!
 const after = JSON.parse(await readFile(afterPath, 'utf8'))
 check(
@@ -284,13 +291,7 @@ check(
 /* ── restore ── */
 
 await rm(join(INBOX, 'test-a.json'), { force: true })
-await rm(join(INBOX, 'test-b.json'), { force: true })
-for (const file of (await readdir(OUT)).filter((f) => /^snapshot-[0-9a-f]+\.json$/.test(f))) {
-  await rm(join(OUT, file), { force: true })
-}
-if (savedSnapshot !== null && priorPath !== null) await writeFile(priorPath, savedSnapshot)
-if (savedManifest !== null) await writeFile(MANIFEST, savedManifest)
-else await rm(MANIFEST, { force: true })
+// Teardown is one line now: the whole workspace is scratch.
 
 /* ─────────────── the 2,000-op cliff ─────────────── */
 

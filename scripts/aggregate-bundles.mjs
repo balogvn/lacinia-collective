@@ -39,8 +39,17 @@ const { sha256 } = require('@noble/hashes/sha256')
 ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m))
 
 const ROOT = resolve(process.cwd())
-const INBOX = join(ROOT, 'commons', 'inbox')
-const OUT = join(ROOT, 'public', 'commons')
+/*
+  Overridable so the verification suite can run against a scratch workspace.
+
+  It used to read the live directories, which made the suite fail whenever a
+  real bundle happened to be waiting in the inbox — and since the aggregate
+  workflow runs `npm run verify` BEFORE aggregating, that turned any submitted
+  bundle into a way to stop the commons being merged at all. A public inbox
+  must not be able to fail the build that drains it.
+*/
+const INBOX = process.env.LACINIA_INBOX || join(ROOT, 'commons', 'inbox')
+const OUT = process.env.LACINIA_OUT || join(ROOT, 'public', 'commons')
 
 /**
  * Snapshot filenames are CONTENT-ADDRESSED — `snapshot-<id>.json`.

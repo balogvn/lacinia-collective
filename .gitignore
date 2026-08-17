@@ -12,3 +12,4 @@ next-env.d.ts
 
 # Inbox bundles ARE the submission mechanism (via pull request) — never ignore
 # them, and never ignore public/commons, which the aggregator commits back.
+.aggregator-test/
