@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
+import { useAutoSync } from '@/hooks/useAutoSync'
 import { FirstRunPanel } from '@/components/onboard/FirstRunPanel'
 import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useDeliberation } from '@/hooks/useDeliberation'
@@ -26,6 +27,11 @@ export function DeliberationWorkbench() {
     delib.map?.status === 'ok' ? delib.map.participants : undefined,
   )
   const firstRun = useFirstRun(!!commons.identity)
+  useAutoSync(async () => {
+    await delib.refresh()
+    await commons.refresh()
+    await firstRun.refresh()
+  })
   const [opening, setOpening] = useState(false)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')

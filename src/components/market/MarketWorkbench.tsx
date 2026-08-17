@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useCommons } from '@/hooks/useCommons'
 import { useFirstRun } from '@/hooks/useFirstRun'
+import { useAutoSync } from '@/hooks/useAutoSync'
 import { FirstRunPanel } from '@/components/onboard/FirstRunPanel'
 import { UnlockGate } from '@/components/identity/UnlockGate'
 import { useMarketplace } from '@/hooks/useMarketplace'
@@ -21,6 +22,12 @@ export function MarketWorkbench() {
   const [settling, setSettling] = useState<ResourceListing | null>(null)
   const [benchOpen, setBenchOpen] = useState(false)
   const firstRun = useFirstRun(!!commons.identity)
+  // The commons arrives on its own; nobody should have to press Sync to see it.
+  useAutoSync(async () => {
+    await market.refresh()
+    await commons.refresh()
+    await firstRun.refresh()
+  })
   const benchRef = useRef<HTMLDivElement>(null)
 
   /*
