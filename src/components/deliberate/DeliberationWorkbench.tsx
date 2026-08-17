@@ -149,6 +149,14 @@ export function DeliberationWorkbench() {
               >
                 Open the conversation
               </button>
+              {/* The same silent gate as the statement composer, named. */}
+              {title.trim().length < 3 || prompt.trim().length < 8 ? (
+                <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-paper/40">
+                  {title.trim().length < 3
+                    ? 'A title of at least three characters'
+                    : 'A question of at least eight characters'}
+                </p>
+              ) : null}
             </div>
           </div>
         ) : null}

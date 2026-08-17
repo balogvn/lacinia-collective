@@ -29,6 +29,9 @@ interface Props {
  * reproduce themselves in a tool meant to bridge them. The author is still
  * recorded and signed; it is simply not shown at the moment of judgement.
  */
+/** Short enough to be a claim, long enough not to be a typo. */
+const MIN_STATEMENT_CHARS = 8
+
 export function VoteQueue({
   statements,
   myVotes,
@@ -180,12 +183,22 @@ export function VoteQueue({
               />
             </label>
             <div className="mt-2 flex flex-wrap items-center gap-3">
+              {/*
+                Say WHY the button is dead. It is disabled under eight
+                characters and used to explain nothing, so a short statement
+                produced a button that simply did not respond — indistinguishable
+                from the app being broken, which is how it was reported.
+              */}
               <span className="font-mono text-[10px] uppercase tracking-wider text-paper/40">
-                {draft.length}/{MAX_STATEMENT_CHARS}
+                {draft.trim().length < MIN_STATEMENT_CHARS
+                  ? `${MIN_STATEMENT_CHARS - draft.trim().length} more character${
+                      MIN_STATEMENT_CHARS - draft.trim().length === 1 ? '' : 's'
+                    } needed`
+                  : `${draft.length}/${MAX_STATEMENT_CHARS}`}
               </span>
               <button
                 onClick={submit}
-                disabled={busy || draft.trim().length < 8}
+                disabled={busy || draft.trim().length < MIN_STATEMENT_CHARS}
                 className="btn btn-solid ml-auto"
               >
                 {busy ? 'Adding…' : 'Add statement'}
