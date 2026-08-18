@@ -3,11 +3,11 @@
   "updatedAt": 0,
   "entries": [
     {
-      "path": "snapshot-6c4b8e34e7dfaea7.json",
-      "id": "6c4b8e34e7dfaea7e83fb6b1f95c31b0",
-      "hlcMax": "01a0015989240000-665a2ab0",
-      "opCount": 190,
-      "bytes": 127958
+      "path": "snapshot-4f200a091f3411d7.json",
+      "id": "4f200a091f3411d72d5f9704324e48ac",
+      "hlcMax": "01a00ff2295a0000-pipeline-test",
+      "opCount": 191,
+      "bytes": 128530
     }
   ]
 }
